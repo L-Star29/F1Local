@@ -1,0 +1,32 @@
+[
+  {
+    "circuit": "Silverstone",
+    "completed": true,
+    "seconds": 150.33333333336094,
+    "maxOffset": 1.9060612381837154,
+    "secondsOutsideConservativeWidth": 0,
+    "secondsAllWheelsOff": 0,
+    "digitalInputsOnly": true,
+    "note": "Conservative offline digital-key path-following diagnostic; not a representative human or F1 25 lap time."
+  },
+  {
+    "circuit": "Red Bull Ring",
+    "completed": true,
+    "seconds": 113.31666666670291,
+    "maxOffset": 2.4854106008167256,
+    "secondsOutsideConservativeWidth": 1.1999999999999982,
+    "secondsAllWheelsOff": 0,
+    "digitalInputsOnly": true,
+    "note": "Conservative offline digital-key path-following diagnostic; not a representative human or F1 25 lap time."
+  },
+  {
+    "circuit": "Imola",
+    "completed": true,
+    "seconds": 125.2000000000457,
+    "maxOffset": 2.9816143870531455,
+    "secondsOutsideConservativeWidth": 0,
+    "secondsAllWheelsOff": 0,
+    "digitalInputsOnly": true,
+    "note": "Conservative offline digital-key path-following diagnostic; not a representative human or F1 25 lap time."
+  }
+]

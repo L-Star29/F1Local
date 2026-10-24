@@ -1,0 +1,16 @@
+from pathlib import Path
+p=Path('game.js')
+s=p.read_text(encoding='utf-8')
+s="import {trackLimitStep} from './track-limits.js';\n"+s
+s=s.replace('let busy=false;', 'let busy=false,offTrackSeconds=0;')
+s=s.replace('formula-local-v6-', 'formula-local-v7-').replace("${$('gears').value}`", "${$('gears').value}-${$('trackLimits').value}`")
+s=s.replace('function resetSession(){car=', 'function resetSession(){offTrackSeconds=0;car=')
+s=s.replace("['gears']", "['gears','trackLimits']")
+s=s.replace('if(track.modelFile?road.wheelsOff===4:Math.abs(road.offset)>road.width/2+1.1){', "const limit=trackLimitStep(offTrackSeconds,track.modelFile?road.wheelsOff===4:Math.abs(road.offset)>road.width/2+1.1,dt,$('trackLimits').value);offTrackSeconds=limit.seconds;\n if(limit.invalid){")
+s=s.replace('lap++;lapTime=0;', 'lap++;offTrackSeconds=0;lapTime=0;')
+s=s.replace('Build speed. Brake in a straight line; ease off as you turn.', 'ABS + traction control on. Hold S to brake; release to carry speed.')
+p.write_text(s,encoding='utf-8')
+p=Path('index.html');s=p.read_text(encoding='utf-8').replace('HANDLING BUILD 06.1','HANDLING BUILD 07')
+s=s.replace('<div class="control-note">', '<label>Track limits<select id="trackLimits"><option value="strict">Strict · current rules</option><option value="standard">Standard · 0.5s grace</option><option value="relaxed">Relaxed · 1.5s grace</option><option value="practice">Practice · off-track allowed</option></select></label><div class="control-note">')
+s=s.replace('Progressive keyboard controls<br>You steer. You brake.','ABS + traction control<br>You steer. You brake.')
+p.write_text(s,encoding='utf-8')

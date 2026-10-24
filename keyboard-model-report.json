@@ -1,0 +1,89 @@
+{
+  "corners": [
+    {
+      "initialKmh": 36,
+      "maxSlipDegrees": 6.339657217148401
+    },
+    {
+      "initialKmh": 72,
+      "maxSlipDegrees": 1.3861610152897708
+    },
+    {
+      "initialKmh": 144,
+      "maxSlipDegrees": 1.4552404491477509
+    },
+    {
+      "initialKmh": 216,
+      "maxSlipDegrees": 1.6195211772036309
+    },
+    {
+      "initialKmh": 288,
+      "maxSlipDegrees": 2.0848052033701214
+    },
+    {
+      "initialKmh": 331.2,
+      "maxSlipDegrees": 2.3446635298531087
+    }
+  ],
+  "tracks": [
+    {
+      "name": "Silverstone",
+      "points": 1964,
+      "misses": 0,
+      "maxHeightError": 2.6645352591003757e-15,
+      "length": 5891.000000000001
+    },
+    {
+      "name": "Spa-Francorchamps",
+      "points": 2335,
+      "misses": 0,
+      "maxHeightError": 2.842170943040401e-14,
+      "length": 7004
+    },
+    {
+      "name": "Imola",
+      "points": 1637,
+      "misses": 0,
+      "maxHeightError": 1.0658141036401503e-14,
+      "length": 4909
+    },
+    {
+      "name": "Hungaroring",
+      "points": 1461,
+      "misses": 0,
+      "maxHeightError": 1.4210854715202004e-14,
+      "length": 4381
+    },
+    {
+      "name": "Barcelona-Catalunya",
+      "points": 1553,
+      "misses": 0,
+      "maxHeightError": 7.105427357601002e-15,
+      "length": 4657
+    },
+    {
+      "name": "Albert Park",
+      "points": 1768,
+      "misses": 0,
+      "maxHeightError": 5.684341886080802e-14,
+      "length": 5303
+    },
+    {
+      "name": "Shanghai",
+      "points": 1817,
+      "misses": 0,
+      "maxHeightError": 7.105427357601002e-15,
+      "length": 5451
+    },
+    {
+      "name": "Sepang",
+      "points": 1848,
+      "misses": 0,
+      "maxHeightError": 4.263256414560601e-14,
+      "length": 5542.999999999999
+    }
+  ],
+  "reverse": true,
+  "edgeGrip": true,
+  "passed": "keyboard ramps, release, analogue fidelity, no autonomous steering/braking, corner stability, brake/turn stability, tyre force budget, exact imported road coverage/elevation, barrier contact"
+}

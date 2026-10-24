@@ -1,0 +1,50 @@
+[
+  {
+    "id": "gb-1948",
+    "name": "Silverstone",
+    "modelScale": 1.0000653649328117,
+    "length": 5891.000000000001,
+    "missing": 0,
+    "roadWidthRange": [
+      12.5,
+      60
+    ],
+    "elevationRange": [
+      -7.228913060779979,
+      4.068404917160547
+    ],
+    "hits": []
+  },
+  {
+    "id": "at-1969",
+    "name": "Red Bull Ring",
+    "modelScale": 1.0618259270274908,
+    "length": 4318,
+    "missing": 0,
+    "roadWidthRange": [
+      9.75,
+      50.5
+    ],
+    "elevationRange": [
+      426.3419447678516,
+      489.816471224357
+    ],
+    "hits": []
+  },
+  {
+    "id": "it-1953",
+    "name": "Imola",
+    "modelScale": 1.0038244173406117,
+    "length": 4909,
+    "missing": 0,
+    "roadWidthRange": [
+      9.5,
+      35.25
+    ],
+    "elevationRange": [
+      -15.985773459992757,
+      18.46197219525431
+    ],
+    "hits": []
+  }
+]

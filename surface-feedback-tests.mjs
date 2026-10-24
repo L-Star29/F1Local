@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {BarrierGrid} from './surface.js';
+import {feedbackLevels} from './driving-feedback.js';
+const slopedRoad={positions:[0,0,0,20,1,0,0,0,20],indices:[0,1,2]};
+assert.equal(new BarrierGrid([slopedRoad]).contact(10,.5,.2),null,'inclined road must not become a projected wall');
+const wall={positions:[0,0,0,0,2,0,20,0,0,20,2,0],indices:[0,1,2,1,3,2]};
+assert.ok(new BarrierGrid([wall]).contact(10,0,.5),'real wall still blocks');
+const overhead={...wall,positions:wall.positions.map((v,i)=>i%3===1?v+5:v)};
+assert.equal(new BarrierGrid([overhead]).contact(10,0,.5),null,'overhead geometry remains clear');
+assert.equal(feedbackLevels({u:0,frontSlip:.3}).tyre,0);
+assert.equal(feedbackLevels({u:70,frontSlip:0,rearSlip:0}).tyre,0);
+assert.ok(feedbackLevels({u:70,frontSlip:.1}).tyre>0);
+assert.equal(feedbackLevels({u:30,abs:true,tc:true}).abs,'ABS ACTIVE');
+console.log('Sloped road, physical wall, overhead clearance, tyre audio and assist indication checks passed.');

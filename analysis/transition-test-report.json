@@ -1,0 +1,250 @@
+{
+  "transitions": [
+    {
+      "speed": 144,
+      "steer": 0.5,
+      "kind": "coast",
+      "maxBeta": 0.6774702724838373,
+      "maxR": 0.39508775674010743,
+      "finalSpeed": 125.71825852265475
+    },
+    {
+      "speed": 144,
+      "steer": 0.5,
+      "kind": "brake",
+      "maxBeta": 3.161427184233251,
+      "maxR": 0.5045059000964836,
+      "finalSpeed": -9.000000000000004
+    },
+    {
+      "speed": 144,
+      "steer": 0.5,
+      "kind": "release",
+      "maxBeta": 0.7404503674778571,
+      "maxR": 0.37527004724179086,
+      "finalSpeed": 129.94746467493775
+    },
+    {
+      "speed": 144,
+      "steer": 1,
+      "kind": "coast",
+      "maxBeta": 1.7076059493893334,
+      "maxR": 0.6228842365938626,
+      "finalSpeed": 111.160869552586
+    },
+    {
+      "speed": 144,
+      "steer": 1,
+      "kind": "brake",
+      "maxBeta": 5.2846885857419945,
+      "maxR": 0.9808492786688008,
+      "finalSpeed": -0.24
+    },
+    {
+      "speed": 144,
+      "steer": 1,
+      "kind": "release",
+      "maxBeta": 1.7076059493893334,
+      "maxR": 0.5869687791135029,
+      "finalSpeed": 124.44994643846115
+    },
+    {
+      "speed": 216,
+      "steer": 0.5,
+      "kind": "coast",
+      "maxBeta": 1.0233761241847315,
+      "maxR": 0.3677151732771292,
+      "finalSpeed": 171.1057493577282
+    },
+    {
+      "speed": 216,
+      "steer": 0.5,
+      "kind": "brake",
+      "maxBeta": 3.1525059126278263,
+      "maxR": 0.5045091121013103,
+      "finalSpeed": 0
+    },
+    {
+      "speed": 216,
+      "steer": 0.5,
+      "kind": "release",
+      "maxBeta": 1.0391387688685954,
+      "maxR": 0.3677151732771292,
+      "finalSpeed": 176.55599113475634
+    },
+    {
+      "speed": 216,
+      "steer": 1,
+      "kind": "coast",
+      "maxBeta": 2.284851071464339,
+      "maxR": 0.5652124963976768,
+      "finalSpeed": 156.074943193336
+    },
+    {
+      "speed": 216,
+      "steer": 1,
+      "kind": "brake",
+      "maxBeta": 5.3408998349827295,
+      "maxR": 0.9777943161584827,
+      "finalSpeed": 32.97348477531765
+    },
+    {
+      "speed": 216,
+      "steer": 1,
+      "kind": "release",
+      "maxBeta": 2.284851071464339,
+      "maxR": 0.5652124963976768,
+      "finalSpeed": 171.27277651544688
+    },
+    {
+      "speed": 288,
+      "steer": 0.5,
+      "kind": "coast",
+      "maxBeta": 1.1787099026908914,
+      "maxR": 0.4037335003165204,
+      "finalSpeed": 207.6044260688342
+    },
+    {
+      "speed": 288,
+      "steer": 0.5,
+      "kind": "brake",
+      "maxBeta": 3.1416131507195764,
+      "maxR": 0.5045109536257685,
+      "finalSpeed": 14.547218315532644
+    },
+    {
+      "speed": 288,
+      "steer": 0.5,
+      "kind": "release",
+      "maxBeta": 1.1796449925160462,
+      "maxR": 0.4037335003165204,
+      "finalSpeed": 214.2667245661445
+    },
+    {
+      "speed": 288,
+      "steer": 1,
+      "kind": "coast",
+      "maxBeta": 2.5634359123335577,
+      "maxR": 0.654642252005258,
+      "finalSpeed": 193.0804712640889
+    },
+    {
+      "speed": 288,
+      "steer": 1,
+      "kind": "brake",
+      "maxBeta": 2.1933717426503097,
+      "maxR": 0.7298239649854479,
+      "finalSpeed": 62.51844256044503
+    },
+    {
+      "speed": 288,
+      "steer": 1,
+      "kind": "release",
+      "maxBeta": 2.5634359123335577,
+      "maxR": 0.654642252005258,
+      "finalSpeed": 210.75707371448638
+    },
+    {
+      "speed": 324,
+      "steer": 0.5,
+      "kind": "coast",
+      "maxBeta": 1.2326362229277532,
+      "maxR": 0.4267067645938741,
+      "finalSpeed": 224.3239591205787
+    },
+    {
+      "speed": 324,
+      "steer": 0.5,
+      "kind": "brake",
+      "maxBeta": 3.191948193513414,
+      "maxR": 0.5045110207809912,
+      "finalSpeed": 27.589754667671357
+    },
+    {
+      "speed": 324,
+      "steer": 0.5,
+      "kind": "release",
+      "maxBeta": 1.2326362229277532,
+      "maxR": 0.4267067645938741,
+      "finalSpeed": 231.62323644864827
+    },
+    {
+      "speed": 324,
+      "steer": 1,
+      "kind": "coast",
+      "maxBeta": 2.6403514807728254,
+      "maxR": 0.6912411723718846,
+      "finalSpeed": 209.2257209551734
+    },
+    {
+      "speed": 324,
+      "steer": 1,
+      "kind": "brake",
+      "maxBeta": 2.328663206117135,
+      "maxR": 0.6912411723718846,
+      "finalSpeed": 74.37720808320876
+    },
+    {
+      "speed": 324,
+      "steer": 1,
+      "kind": "release",
+      "maxBeta": 2.6403514807728254,
+      "maxR": 0.6912411723718846,
+      "finalSpeed": 228.22879809299405
+    }
+  ],
+  "acceleration": {
+    "100": 2.5083333333333333,
+    "200": 4.616666666666666,
+    "300": 9.55
+  },
+  "braking": {
+    "100": {
+      "seconds": 1.5666666666666635,
+      "metres": 21.479975343702996
+    },
+    "200": {
+      "seconds": 2.61666666666666,
+      "metres": 65.56426529336605
+    },
+    "300": {
+      "seconds": 3.2916666666666576,
+      "metres": 114.25111910871782
+    }
+  },
+  "turning": [
+    {
+      "speed": 40,
+      "headingDegrees": -53.01601822773133,
+      "slipDegrees": -9.032829000097015,
+      "g": -1.1291241897633093
+    },
+    {
+      "speed": 80,
+      "headingDegrees": -39.69807443738141,
+      "slipDegrees": -1.1147291815097855,
+      "g": -1.713134377650706
+    },
+    {
+      "speed": 120,
+      "headingDegrees": -31.706993048548785,
+      "slipDegrees": 0.8367343708686527,
+      "g": -1.968367186852008
+    },
+    {
+      "speed": 200,
+      "headingDegrees": -27.066342321095426,
+      "slipDegrees": 1.842818270810127,
+      "g": -2.6423331546704185
+    },
+    {
+      "speed": 280,
+      "headingDegrees": -27.78194297682294,
+      "slipDegrees": 2.290286638634758,
+      "g": -3.590904773541168
+    }
+  ],
+  "randomTransitionWorstSlip": 11.7488193062532,
+  "cameraDistanceMetres": 8.2,
+  "integrationPositionDifference": 0.40150794256707123
+}

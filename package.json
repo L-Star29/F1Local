@@ -1,0 +1,9 @@
+{
+  "name": "formula-local",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node tests.mjs && node handling-tests.mjs && node keyboard-model-tests.mjs && node transition-tests.mjs && node digital-lap-test.mjs && node abs-limits-tests.mjs && node surface-feedback-tests.mjs && node circuit-audit.mjs && node multiplayer-tests.mjs"
+  }
+}

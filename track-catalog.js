@@ -1,0 +1,12 @@
+export const modelCircuits=[
+ {id:'gb-1948',name:'Silverstone',country:'GREAT BRITAIN · 2024',length:5891,turns:18,cw:true,start:[-1.0218,52.0704],file:'silverstone_circuit_2024_layout.glb',fit:'^groove',road:'^asphalt',ground:'grass|top2|sand|curb|asph_pitlane',barrier:'barriers|tyreswall|jersey|walls2'},
+ {id:'at-1969',name:'Red Bull Ring',country:'AUSTRIA · 2025',length:4318,turns:10,cw:true,start:[14.7648,47.2197],file:'redbull_ring_2025_layout.glb',fit:'_3$',road:'_3$|_29$',ground:'_6$|_59$|_39$|_40$',barrier:'_24$|_45$'},
+ {id:'be-1925',name:'Spa-Francorchamps',country:'BELGIUM · 2022',length:7004,turns:19,cw:true,start:[5.971,50.437],file:'circuit_de_spa-francorchamps_2022_layout.glb',fit:'^groove',road:'^asph(?:alt|\\.|_new)',ground:'grass|GRASS|sand|carpet|curb',barrier:'grail|barrier|jersey|walls'},
+ {id:'it-1953',name:'Imola',country:'ITALY · 2024',length:4909,turns:19,cw:false,start:[11.7167,44.3444],file:'imola_circuit_2024_layout.glb',fit:'^groove',road:'^asphalt|^asph_old',ground:'grass|sand|curb',barrier:'barrier|grail|wall|jersey'},
+ {id:'hu-1986',name:'Hungaroring',country:'HUNGARY · 2020',length:4381,turns:14,cw:true,start:[19.251,47.5788],file:'hungaroring_2020_layout.glb',fit:'_11$',road:'_76$',ground:'_0$|_1$|_2$|_3$|_4$|_13$|_14$|_73$|_74$',barrier:'_7$|_8$|_9$|_10$|_24$'},
+ {id:'es-1991',name:'Barcelona-Catalunya',country:'SPAIN · 2023',length:4657,turns:14,cw:true,start:[2.261,41.570],file:'barcelona-catalunya_grand_prix_2023_layout.glb',fit:'_96$',road:'_96$|_53$',ground:'_11$|_12$|_15$|_17$|_21$|_79$|_82$',barrier:'_4$|_7$|_8$|_20$|_42$'},
+ {id:'au-1953',name:'Albert Park',country:'AUSTRALIA · 2018',length:5303,turns:16,cw:true,start:[144.968, -37.8497],file:'albert_park_circuit_melbourne_2018_layout.glb',fit:'_24$',road:'_65$',ground:'_12$|_13$|_14$|_28$|_63$|_75$',barrier:'_7$|_15$|_73$|_80$'},
+ {id:'cn-2004',name:'Shanghai',country:'CHINA · 2018',length:5451,turns:16,cw:true,start:[121.220,31.3389],file:'shanghai_international_circuit_2018_layout.glb',fit:'_66$',road:'_22$',ground:'_11$|_12$|_15$|_79$|_80$|_81$|_82$',barrier:'_44$|_45$|_65$|_60$'},
+ {id:'my-1999',name:'Sepang',country:'MALAYSIA · 2025',length:5543,turns:15,cw:true,start:[101.738,2.7607],file:'sepang_international_circuit_2025_layout.glb',fit:'_86$',road:'_85$|_22$',ground:'_0$|_5$|_6$|_70$|_71$|_74$|_84$',barrier:'_39$|_40$|_41$|_88$|_90$'}
+// Austria is temporarily unavailable pending terrain/contact repairs.
+].filter(s=>s.id!=='at-1969').map(s=>({...s,width:14,theme:'park',heights:[[0,0],[1,0]]}));

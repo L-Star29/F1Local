@@ -1,0 +1,37 @@
+[
+  {
+    "circuit": "Silverstone",
+    "completed": true,
+    "seconds": 207.68,
+    "maxCentreOffset": 1.08,
+    "secondsOutsideSafeWidth": 0
+  },
+  {
+    "circuit": "Monaco",
+    "completed": true,
+    "seconds": 156.32,
+    "maxCentreOffset": 2,
+    "secondsOutsideSafeWidth": 0
+  },
+  {
+    "circuit": "Baku",
+    "completed": true,
+    "seconds": 189.98,
+    "maxCentreOffset": 1.85,
+    "secondsOutsideSafeWidth": 0
+  },
+  {
+    "circuit": "Austria",
+    "completed": true,
+    "seconds": 138.88,
+    "maxCentreOffset": 1.62,
+    "secondsOutsideSafeWidth": 0
+  },
+  {
+    "circuit": "COTA",
+    "completed": true,
+    "seconds": 204.2,
+    "maxCentreOffset": 1.89,
+    "secondsOutsideSafeWidth": 0
+  }
+]

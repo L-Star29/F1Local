@@ -1,0 +1,48 @@
+{
+  "screenDirection": "A/left and D/right pass at four headings using Three.js projection",
+  "automatic": {
+    "gearIndependent": true,
+    "shiftEvents": 0,
+    "maxAccelerationStepAbove108Kmh": 0.040389305003419196
+  },
+  "sustainedCorner": [
+    {
+      "initialKmh": 36,
+      "maxBodySlipDegrees": 7.012237628525442
+    },
+    {
+      "initialKmh": 72,
+      "maxBodySlipDegrees": 0.9128838685152886
+    },
+    {
+      "initialKmh": 144,
+      "maxBodySlipDegrees": 1.428681895321551
+    },
+    {
+      "initialKmh": 216,
+      "maxBodySlipDegrees": 1.584413792233447
+    },
+    {
+      "initialKmh": 288,
+      "maxBodySlipDegrees": 1.7553567337284688
+    }
+  ],
+  "releaseYawRate": -1.569857130952072e-13,
+  "acceleration": {
+    "100": 2.7583333333333333,
+    "200": 5.05,
+    "300": 9.991666666666667
+  },
+  "speedAfter45s": 328.67500300296376,
+  "braking329to119": {
+    "seconds": 1.691666666666663,
+    "metres": 98.76604274246274,
+    "peakG": 4.8589365087384015
+  },
+  "braking100to0": {
+    "seconds": 1.5833333333333302,
+    "metres": 21.156931704149983,
+    "peakG": 2.0988671081749293
+  },
+  "tests": "Actual keyboard mapping and Three.js camera-relative steering, symmetry, release stability, sustained-corner stability, speed transitions, grip budget, load transfer, slip peak, assists, acceleration, braking, integration convergence"
+}
