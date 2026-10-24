@@ -12,7 +12,12 @@ export function createGameServer(worldFactory=loadRaceWorld){
  const server=http.createServer(async(req,res)=>{try{
   const url=new URL(req.url,'http://'+req.headers.host),parts=url.pathname.split('/').filter(Boolean);
   if(parts[0]==='api'){
-   if(req.headers.origin&&req.headers.origin!==url.origin)return json(res,403,{error:'Open the game from this server address.'});
+   const origin=req.headers.origin,allowed=new Set((process.env.ALLOWED_ORIGINS||'').split(',').map(s=>s.trim()).filter(Boolean));
+   const sameOrigin=origin===url.origin||origin==='https://'+req.headers.host;
+   if(origin&&!sameOrigin&&!allowed.has(origin))return json(res,403,{error:'This game website is not allowed by the race server.'});
+   if(origin){res.setHeader('Access-Control-Allow-Origin',origin);res.setHeader('Vary','Origin');}
+   if(req.method==='OPTIONS'){res.writeHead(204,{'Access-Control-Allow-Methods':'GET, POST, OPTIONS','Access-Control-Allow-Headers':'Content-Type, Authorization','Access-Control-Max-Age':'600'}).end();return;}
+   if(req.method==='GET'&&url.pathname==='/api/health')return json(res,200,{ok:true,service:'f1local-racing'});
    const room=rooms.get(parts[2]);
    if(req.method==='GET'&&parts[3]==='events'){
     const auth=tokens.get(url.searchParams.get('token'));if(!auth||!room||auth.room!==room)return json(res,403,{error:'Invalid room session.'});
@@ -38,7 +43,7 @@ export function createGameServer(worldFactory=loadRaceWorld){
   }
   if(req.method!=='GET'&&req.method!=='HEAD'){res.writeHead(405).end();return;}
   const relative=decodeURIComponent(url.pathname).replace(/^\/+/, '')||'index.html';
-  const allowed=/^(index\.html|credits\.html|style\.css|game\.js|world\.js|physics\.js|tracks\.js|surface\.js|model-assets\.js|track-catalog\.js|controls\.js|camera-rig\.js|driving-feedback\.js|track-limits\.js|multiplayer\.js)$/.test(relative)||/^(vendor|data|Car Models|Race Track Models)\//.test(relative);
+  const allowed=/^(index\.html|credits\.html|style\.css|game\.js|world\.js|physics\.js|tracks\.js|surface\.js|model-assets\.js|track-catalog\.js|controls\.js|camera-rig\.js|driving-feedback\.js|track-limits\.js|multiplayer\.js|multiplayer-config\.json)$/.test(relative)||/^(vendor|data|Car Models|Race Track Models)\//.test(relative);
   const file=path.resolve(root,relative);if(!allowed||!file.startsWith(root+path.sep)||relative.split(/[\\/]/).some(p=>p.startsWith('.'))){res.writeHead(404).end('Not found');return;}
   fs.readFile(file,(error,bytes)=>{if(error){res.writeHead(404).end('Not found');return;}res.writeHead(200,{'Content-Type':({'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.glb':'model/gltf-binary'})[path.extname(file)]||'application/octet-stream'});res.end(req.method==='HEAD'?undefined:bytes);});
  }catch(error){if(!res.headersSent)json(res,400,{error:error.message});else res.end();}});

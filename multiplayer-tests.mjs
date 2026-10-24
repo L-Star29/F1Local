@@ -28,6 +28,12 @@ const server=createGameServer(()=>world);await new Promise(resolve=>server.liste
 const post=async(p,body={},token)=>{const res=await fetch(base+'/api/rooms'+p,{method:'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})},body:JSON.stringify(body)});return {status:res.status,...await res.json()};};
 let stream;
 try{
+ process.env.ALLOWED_ORIGINS='https://l-star29.github.io';
+ const preflight=await fetch(base+'/api/rooms',{method:'OPTIONS',headers:{Origin:'https://l-star29.github.io','Access-Control-Request-Method':'POST','Access-Control-Request-Headers':'authorization,content-type'}});
+ assert.equal(preflight.status,204);assert.equal(preflight.headers.get('access-control-allow-origin'),'https://l-star29.github.io');
+ const health=await fetch(base+'/api/health',{headers:{Origin:'https://l-star29.github.io'}});assert.equal((await health.json()).ok,true);assert.equal(health.headers.get('access-control-allow-origin'),'https://l-star29.github.io');
+ assert.equal((await fetch(base+'/api/health',{headers:{Origin:'https://unapproved.example'}})).status,403);
+ delete process.env.ALLOWED_ORIGINS;
  const host=await post('',{name:'Host',team:'ferrari',laps:1});assert.equal(host.status,200);const guest=await post('/'+host.code+'/join',{name:'Guest',team:'audi'});assert.equal(guest.status,200);assert.equal((await post('/'+host.code+'/join',{team:'audi'})).status,400);
  assert.equal((await post('/'+host.code+'/start',{},'wrong')).status,403);
  const abort=new AbortController();stream=abort;const events=await fetch(base+'/api/rooms/'+host.code+'/events?token='+host.token,{signal:abort.signal});const reader=events.body.getReader();const initial=new TextDecoder().decode((await reader.read()).value);assert.ok(initial.includes('Host'));assert.ok(!initial.includes(host.token));abort.abort();

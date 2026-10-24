@@ -6,7 +6,7 @@ import {teams} from './model-assets.js';
 
 const root=path.dirname(fileURLToPath(import.meta.url));
 const output=path.join(root,'dist-pages');
-const files=['index.html','credits.html','style.css','game.js','world.js','physics.js','tracks.js','surface.js','model-assets.js','track-catalog.js','controls.js','camera-rig.js','driving-feedback.js','track-limits.js','multiplayer.js','data/LICENSE.md'];
+const files=['multiplayer-config.json','index.html','credits.html','style.css','game.js','world.js','physics.js','tracks.js','surface.js','model-assets.js','track-catalog.js','controls.js','camera-rig.js','driving-feedback.js','track-limits.js','multiplayer.js','data/LICENSE.md'];
 async function collect(folder){for(const entry of await fs.readdir(path.join(root,folder),{withFileTypes:true})){const relative=folder+'/'+entry.name;if(entry.isDirectory())await collect(relative);else files.push(relative);}}
 await collect('vendor');
 for(const team of teams)files.push('Car Models/'+team.file);
