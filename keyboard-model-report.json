@@ -2,27 +2,27 @@
   "corners": [
     {
       "initialKmh": 36,
-      "maxSlipDegrees": 6.339657217148401
+      "maxSlipDegrees": 5.995806100465675
     },
     {
       "initialKmh": 72,
-      "maxSlipDegrees": 1.3861610152897708
+      "maxSlipDegrees": 1.2924807928795448
     },
     {
       "initialKmh": 144,
-      "maxSlipDegrees": 1.4552404491477509
+      "maxSlipDegrees": 1.4406553729196174
     },
     {
       "initialKmh": 216,
-      "maxSlipDegrees": 1.6195211772036309
+      "maxSlipDegrees": 1.5481474494831569
     },
     {
       "initialKmh": 288,
-      "maxSlipDegrees": 2.0848052033701214
+      "maxSlipDegrees": 1.6122004818569262
     },
     {
       "initialKmh": 331.2,
-      "maxSlipDegrees": 2.3446635298531087
+      "maxSlipDegrees": 1.8220005103058798
     }
   ],
   "tracks": [

@@ -85,7 +85,7 @@ export function createWorld(canvas){
  function raceOpponents(players,dt=0){
   const ids=new Set(players.map(p=>p.id));for(const [id,entry]of opponents)if(!ids.has(id)){if(entry.model){scene.remove(entry.model.root);disposeModel(entry.model.root);}opponents.delete(id);}
   for(const p of players){let entry=opponents.get(p.id);if(!entry){entry={};opponents.set(p.id,entry);loadTeam(p.team).then(model=>{if(opponents.get(p.id)!==entry){disposeModel(model.root);return;}entry.model=model;scene.add(model.root);}).catch(console.error);}if(!entry.model)continue;
-   const root=entry.model.root,c=p.car,blend=!entry.placed||root.position.distanceTo(new T.Vector3(c.x,c.y,c.z))>15?1:1-Math.exp(-dt*18);root.position.lerp(new T.Vector3(c.x,c.y+.035,c.z),blend);root.rotation.y+=Math.atan2(Math.sin(c.yaw-root.rotation.y),Math.cos(c.yaw-root.rotation.y))*blend;root.visible=!p.dnf;for(const w of entry.model.wheels){w.pivot.rotation.y=w.front?c.steer:0;w.spin.rotation.x=c.distance/.36;}entry.placed=true;
+   const root=entry.model.root,c=p.car,blend=1;root.position.lerp(new T.Vector3(c.x,c.y+.035,c.z),blend);root.rotation.y+=Math.atan2(Math.sin(c.yaw-root.rotation.y),Math.cos(c.yaw-root.rotation.y))*blend;root.visible=!p.dnf;for(const w of entry.model.wheels){w.pivot.rotation.y=w.front?c.steer:0;w.spin.rotation.x=c.distance/.36;}entry.placed=true;
   }
  }
  function render(car,road,track,view,menu,time,dt,guide){

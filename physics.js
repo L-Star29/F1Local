@@ -34,7 +34,7 @@ export function steeringLimit(speed,p,assisted=true){
 }
 // Fixed input gearing, not a grip-seeking steering aid. It never reads the
 // track, slip, yaw or tyre forces and never countersteers for the player.
-export function keyboardSteeringRange(speed,p){return Math.min(p.steerLock,p===vehicles.formula?.042+.66/(1+(speed/11)**2):.012+.55/(1+(speed/10.5)**2));}
+export function keyboardSteeringRange(speed,p){return Math.min(p.steerLock,p===vehicles.formula?.032+.66/(1+(speed/11)**2):.012+.55/(1+(speed/10.5)**2));}
 // A broad, monotonic road-tyre plateau avoids falling off a narrow artificial
 // peak on lift-off. Rally retains the separate sliding-force curve.
 export const roadLateralForce=(alpha,capacity,peak)=>capacity*Math.tanh(alpha*1.6/peak);
@@ -46,7 +46,9 @@ export function step(c,input,road,mode,dt,settings={}){
  if(direct){
  c.throttle=input.analog?approach(c.throttle,clamp(input.throttle,0,1),30,dt):ramp(c.throttle,clamp(input.throttle,0,1),input.throttle>c.throttle?(roadFormula?3.5:2.6):(roadFormula?12:7),dt);
  c.brake=input.analog?approach(c.brake,clamp(input.brake,0,1),30,dt):ramp(c.brake,clamp(input.brake,0,1),input.brake>c.brake?(roadFormula?4.5:5):(roadFormula?6:10),dt);
- const demand=clamp(input.steer,-1,1);c.steerInput=input.analog?approach(c.steerInput,demand,30,dt):ramp(c.steerInput,demand,demand===0?(roadFormula?10:5.5):demand*c.steerInput<0?(roadFormula?10:7):(roadFormula?5+1*smooth(60,80,speed):3.8),dt);
+ // Give a held key time to build steering load. A fast yaw impulse followed
+ // by saturated front tyres feels sharp initially but then runs wide.
+ const demand=clamp(input.steer,-1,1);c.steerInput=input.analog?approach(c.steerInput,demand,30,dt):ramp(c.steerInput,demand,demand===0?(roadFormula?10:5.5):demand*c.steerInput<0?(roadFormula?8:7):(roadFormula?3.6:3.8),dt);
  c.steer=approach(c.steer,-c.steerInput*keyboardSteeringRange(speed,p),30,dt);
  }else{
  c.throttle=approach(c.throttle,clamp(input.throttle,0,1),input.analog?30:11,dt);
@@ -103,7 +105,7 @@ export function step(c,input,road,mode,dt,settings={}){
   const front=axle===0,share=front?p.frontDrive:1-p.frontDrive;if(!share)continue;
   const axleLoad=front?frontLoad:rearLoad,long=front?p.a:-p.b,lat=side*p.track/2;
   const transferY=clamp(lateralTransfer*(front?p.rollFront:1-p.rollFront),-axleLoad*.45,axleLoad*.45);
-  const cap=tyreCapacity(Math.max(80,axleLoad/2-side*transferY),p,grip*c.wheelGrips[axle*2+(side===1?1:0)]*(roadFormula?(front?.95:1.10):1));
+  const cap=tyreCapacity(Math.max(80,axleLoad/2-side*transferY),p,grip*c.wheelGrips[axle*2+(side===1?1:0)]*(roadFormula?(front?.98:1.10):1));
   const alpha=(front?c.steer:0)-Math.atan2(c.v+c.r*long,Math.max(Math.abs(c.u-c.r*lat),3));
   const lateral=tyreForce(alpha,cap,p.peak*(roadFormula?(front?1.02:.85):(front?1.02:.96)),p.slide);
   tcScale=Math.min(tcScale,Math.sqrt(Math.max(0,cap*cap-lateral*lateral))*.96/(engine*share/2));
@@ -113,7 +115,7 @@ export function step(c,input,road,mode,dt,settings={}){
   const front=axle===0,long=front?p.a:-p.b,lat=side*p.track/2;
   const axleLoad=front?frontLoad:rearLoad,rollShare=front?p.rollFront:1-p.rollFront;
   const transferY=clamp(lateralTransfer*rollShare,-axleLoad*.45,axleLoad*.45);
-  const load=Math.max(80,axleLoad/2-side*transferY),cap=tyreCapacity(load,p,grip*c.wheelGrips[axle*2+(side===1?1:0)]*(roadFormula?(front?.95:1.10):1));
+  const load=Math.max(80,axleLoad/2-side*transferY),cap=tyreCapacity(load,p,grip*c.wheelGrips[axle*2+(side===1?1:0)]*(roadFormula?(front?.98:1.10):1));
   let delta=front?c.steer:0;
   if(front&&Math.abs(delta)>.001){const radius=wb/Math.tan(delta);delta=Math.atan(wb/(radius-lat*(1-smooth(8,25,speed))));}
   const wheelU=c.u-c.r*lat,wheelV=c.v+c.r*long;

@@ -1,0 +1,20 @@
+[
+  {
+    "kmh": 108,
+    "yawOvershootPercent": 8.464453898959245,
+    "lateralG": 1.9836745907886417,
+    "frontSlipDegrees": 4.806474075803371
+  },
+  {
+    "kmh": 180,
+    "yawOvershootPercent": 16.471649942633746,
+    "lateralG": 2.638251024382726,
+    "frontSlipDegrees": 4.332521604374346
+  },
+  {
+    "kmh": 252,
+    "yawOvershootPercent": 20.17066229420992,
+    "lateralG": 3.6011105199778344,
+    "frontSlipDegrees": 4.146398186041671
+  }
+]
