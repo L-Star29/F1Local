@@ -4,6 +4,6 @@
   "type": "module",
   "scripts": {
     "start": "node server.mjs",
-    "test": "node tests.mjs && node handling-tests.mjs && node keyboard-model-tests.mjs && node transition-tests.mjs && node digital-lap-test.mjs && node abs-limits-tests.mjs && node surface-feedback-tests.mjs && node circuit-audit.mjs && node multiplayer-tests.mjs && node network-motion-tests.mjs && node session-handling-tests.mjs"
+    "test": "node tests.mjs && node handling-tests.mjs && node keyboard-model-tests.mjs && node transition-tests.mjs && node digital-lap-test.mjs && node abs-limits-tests.mjs && node surface-feedback-tests.mjs && node circuit-audit.mjs && node multiplayer-tests.mjs && node network-motion-tests.mjs && node session-handling-tests.mjs && node race-start-tests.mjs && node car-contact-tests.mjs"
   }
 }

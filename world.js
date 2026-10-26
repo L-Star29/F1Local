@@ -1,3 +1,4 @@
+import {carContact} from './car-contact.js';
 import {chasePose} from './camera-rig.js';
 import * as T from './vendor/three.module.js';
 import {sample} from './tracks.js';
@@ -82,10 +83,10 @@ export function createWorld(canvas){
  steeringWheel=box(carGroup,.46,.13,.08,carbon,0,.83,.47);
  }
  const opponents=new Map();
- function raceOpponents(players,dt=0){
+ function raceOpponents(players,dt=0,local=null){
   const ids=new Set(players.map(p=>p.id));for(const [id,entry]of opponents)if(!ids.has(id)){if(entry.model){scene.remove(entry.model.root);disposeModel(entry.model.root);}opponents.delete(id);}
   for(const p of players){let entry=opponents.get(p.id);if(!entry){entry={};opponents.set(p.id,entry);loadTeam(p.team).then(model=>{if(opponents.get(p.id)!==entry){disposeModel(model.root);return;}entry.model=model;scene.add(model.root);}).catch(console.error);}if(!entry.model)continue;
-   const root=entry.model.root,c=p.car,blend=1;root.position.lerp(new T.Vector3(c.x,c.y+.035,c.z),blend);root.rotation.y+=Math.atan2(Math.sin(c.yaw-root.rotation.y),Math.cos(c.yaw-root.rotation.y))*blend;root.visible=!p.dnf;for(const w of entry.model.wheels){w.pivot.rotation.y=w.front?c.steer:0;w.spin.rotation.x=c.distance/.36;}entry.placed=true;
+   const root=entry.model.root,c={...p.car},blend=1;if(local){const contact=carContact(local.car,c,local.team,p.team);if(contact){c.x-=contact.nx*(contact.depth+.001);c.z-=contact.nz*(contact.depth+.001);}}root.position.lerp(new T.Vector3(c.x,c.y+.035,c.z),blend);root.rotation.y+=Math.atan2(Math.sin(c.yaw-root.rotation.y),Math.cos(c.yaw-root.rotation.y))*blend;root.visible=!p.dnf;for(const w of entry.model.wheels){w.pivot.rotation.y=w.front?c.steer:0;w.spin.rotation.x=c.distance/.36;}entry.placed=true;
   }
  }
  function render(car,road,track,view,menu,time,dt,guide){

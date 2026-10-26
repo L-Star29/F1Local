@@ -43,7 +43,7 @@ export function createGameServer(worldFactory=loadRaceWorld){
   }
   if(req.method!=='GET'&&req.method!=='HEAD'){res.writeHead(405).end();return;}
   const relative=decodeURIComponent(url.pathname).replace(/^\/+/, '')||'index.html';
-  const allowed=/^(index\.html|credits\.html|style\.css|game\.js|world\.js|physics\.js|tracks\.js|surface\.js|model-assets\.js|track-catalog\.js|controls\.js|camera-rig\.js|driving-feedback\.js|track-limits\.js|network-motion\.js|setup-flow\.js|solo-session\.js|multiplayer\.js|multiplayer-config\.json)$/.test(relative)||/^(vendor|data|Car Models|Race Track Models)\//.test(relative);
+  const allowed=/^(index\.html|credits\.html|style\.css|game\.js|world\.js|physics\.js|tracks\.js|surface\.js|model-assets\.js|track-catalog\.js|controls\.js|camera-rig\.js|driving-feedback\.js|track-limits\.js|network-motion\.js|setup-flow\.js|garage-preview\.js|race-start\.js|car-contact\.js|car-footprints\.js|practice-starts\.js|solo-session\.js|multiplayer\.js|multiplayer-config\.json)$/.test(relative)||/^(vendor|data|Car Models|Race Track Models)\//.test(relative);
   const file=path.resolve(root,relative);if(!allowed||!file.startsWith(root+path.sep)||relative.split(/[\\/]/).some(p=>p.startsWith('.'))){res.writeHead(404).end('Not found');return;}
   fs.readFile(file,(error,bytes)=>{if(error){res.writeHead(404).end('Not found');return;}res.writeHead(200,{'Content-Type':({'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.glb':'model/gltf-binary'})[path.extname(file)]||'application/octet-stream'});res.end(req.method==='HEAD'?undefined:bytes);});
  }catch(error){if(!res.headersSent)json(res,400,{error:error.message});else res.end();}});

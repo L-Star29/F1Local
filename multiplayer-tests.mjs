@@ -7,8 +7,8 @@ import {vehicles,keyboardSteeringRange} from './physics.js';
 const world=loadRaceWorld(),room=new RaceRoom('TEST00',world.track,world.surface,1);
 const a=room.add('a','One','ferrari'),b=room.add('b','Two','redbull');
 assert.throws(()=>room.add('c','Three','audi'));assert.throws(()=>room.start('b'));assert.throws(()=>room.start('a'));
-a.ready=b.ready=a.connected=b.connected=true;room.start('a');const x=a.car.x;room.tick(1);assert.equal(a.car.x,x);room.tick(4);assert.equal(room.phase,'racing');
-assert.throws(()=>room.setInput(a,{seq:1,steer:NaN,throttle:1,brake:0}));
+a.ready=b.ready=a.connected=b.connected=true;room.start('a');const x=a.car.x;room.tick(1);assert.equal(a.car.x,x);room.tick(room.startAt-room.time+.001);room.setInput(a,{seq:1,steer:0,throttle:0,brake:0});room.tick(1/120);assert.equal(room.phase,'racing');
+assert.throws(()=>room.setInput(a,{seq:2,steer:NaN,throttle:1,brake:0}));
 for(let i=0;i<240;i++){room.setInput(a,{seq:i+2,steer:0,throttle:1,brake:0});room.tick(1/120);}assert.ok(a.car.u>15);assert.ok(a.progress>0);assert.ok(Number.isFinite(a.car.y));
 const speed=a.car.u;for(let i=0;i<180;i++)room.tick(1/120);assert.ok(a.car.u<speed);const seq=a.seq;room.setInput(a,{seq:0,steer:1,throttle:1,brake:0});assert.equal(a.seq,seq);
 room.setInput(a,{seq:seq+1,steer:0,throttle:0,brake:0,recover:true});assert.equal(a.penalty,5);
@@ -16,7 +16,7 @@ a.progress=world.track.length+.1;room.tick(1/120);assert.notEqual(a.finish,null)
 a.ready=b.ready=b.connected=true;room.start('a');assert.equal(a.penalty,0);assert.equal(a.finish,null);assert.equal(b.dnf,false);
 // Complete a real Silverstone lap through the server with digital inputs only.
 const full=new RaceRoom('LAP000',world.track,world.surface,1),driver=full.add('driver','Lap test','ferrari'),other=full.add('other','Other','audi');
-driver.ready=other.ready=driver.connected=other.connected=true;full.start('driver');full.tick(5);other.connected=false;other.disconnectedAt=-20;
+driver.ready=other.ready=driver.connected=other.connected=true;full.start('driver');full.tick(full.startAt-full.time+.001);full.setInput(driver,{seq:-0,steer:0,throttle:0,brake:0});full.tick(1/120);other.connected=false;other.disconnectedAt=-20;
 let controls={steer:0,throttle:0,brake:0};
 for(let i=0;i<120*400&&full.phase!=='finished';i++){
  const c=driver.car,t=world.track,road=world.surface(c);
