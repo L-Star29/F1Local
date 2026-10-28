@@ -8,6 +8,11 @@ const mat=(color,extra={})=>new T.MeshStandardMaterial({color,roughness:.86,...e
 export function createWorld(canvas){
  const renderer=new T.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;
  const scene=new T.Scene();scene.background=new T.Color('#aecbd8');scene.fog=new T.Fog('#aecbd8',250,1800);const camera=new T.PerspectiveCamera(64,innerWidth/innerHeight,.08,5000);
+ const rearCamera=new T.PerspectiveCamera(65,4,.1,450);
+ const rearTarget=new T.WebGLRenderTarget(680,156),mirrorScene=new T.Scene(),mirrorCamera=new T.OrthographicCamera(-1,1,1,-1,0,1);
+ const mirrorGeometry=new T.PlaneGeometry(2,2),mirrorUV=mirrorGeometry.attributes.uv;
+ for(let i=0;i<mirrorUV.count;i++)mirrorUV.setX(i,1-mirrorUV.getX(i));
+ mirrorScene.add(new T.Mesh(mirrorGeometry,new T.MeshBasicMaterial({map:rearTarget.texture,depthTest:false,depthWrite:false,toneMapped:false})));
  const envScene=new T.Scene();envScene.background=new T.Color('#c2d2dc');const envGround=new T.Mesh(new T.PlaneGeometry(100,100),new T.MeshBasicMaterial({color:'#696d65'}));envGround.rotation.x=-Math.PI/2;envGround.position.y=-5;envScene.add(envGround);const envLight=new T.Mesh(new T.PlaneGeometry(12,12),new T.MeshBasicMaterial({color:'#ffffff'}));envLight.position.set(-8,12,-8);envLight.lookAt(0,0,0);envScene.add(envLight);const pmrem=new T.PMREMGenerator(renderer);scene.environment=pmrem.fromScene(envScene,.08).texture;pmrem.dispose();envGround.geometry.dispose();envGround.material.dispose();envLight.geometry.dispose();envLight.material.dispose();
  scene.add(new T.HemisphereLight('#d4e9ff','#75805e',2.5));const sun=new T.DirectionalLight('#fff0d1',3);sun.position.set(-180,260,120);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-100,right:100,top:100,bottom:-100,near:1,far:600});sun.shadow.bias=-.0003;scene.add(sun,sun.target);
  let chaseState={yaw:0},wasChase=false,lastChaseCar;
@@ -20,11 +25,11 @@ export function createWorld(canvas){
  scene.remove(group);disposeModel(group);group=new T.Group();scene.add(group);guideGroup=new T.Group();group.add(guideGroup);
  if(track.modelFile){
   progress('Loading '+track.name+' scenery…');let model=await loadModel('./Race Track Models/'+track.modelFile);if(token!==generation){disposeModel(model);return false;}model.scale.setScalar(track.modelScale||1);model.updateMatrixWorld(true);group.add(model);
-  const roadMeshes=[],groundMeshes=[],barrierMeshes=[],roadPattern=new RegExp(track.roadPattern);
+  const kerbMeshes=[],roadMeshes=[],groundMeshes=[],barrierMeshes=[],roadPattern=new RegExp(track.roadPattern);
   model.traverse(o=>{if(!o.isMesh)return;o.receiveShadow=true;o.castShadow=false;const materials=Array.isArray(o.material)?o.material:[o.material];for(let m of materials){if(m.map)m.map.anisotropy=4;}
    const name=materials[0].name,isRoad=roadPattern.test(name),isBarrier=new RegExp(track.barrierPattern||'(?!)','i').test(name),isGround=isRoad||new RegExp(track.groundPattern||'(?!)','i').test(name);if(!isGround&&!isBarrier)return;
-   const positions=[],v=new T.Vector3(),a=o.geometry.attributes.position;for(let i=0;i<a.count;i++){v.fromBufferAttribute(a,i).applyMatrix4(o.matrixWorld);positions.push(v.x,v.y,v.z);}const mesh={positions,indices:o.geometry.index?Array.from(o.geometry.index.array):Array.from({length:a.count},(_,i)=>i)};if(isGround)groundMeshes.push(mesh);if(isRoad)roadMeshes.push(mesh);if(isBarrier)barrierMeshes.push(mesh);
-  });roadSurface=new SurfaceGrid(roadMeshes);groundSurface=new SurfaceGrid(groundMeshes);barriers=new BarrierGrid(barrierMeshes);
+   const positions=[],v=new T.Vector3(),a=o.geometry.attributes.position;for(let i=0;i<a.count;i++){v.fromBufferAttribute(a,i).applyMatrix4(o.matrixWorld);positions.push(v.x,v.y,v.z);}const mesh={positions,indices:o.geometry.index?Array.from(o.geometry.index.array):Array.from({length:a.count},(_,i)=>i)};if(/curb|kerb/i.test(name))kerbMeshes.push(mesh);if(isGround)groundMeshes.push(mesh);if(isRoad)roadMeshes.push(mesh);if(isBarrier)barrierMeshes.push(mesh);
+  });roadSurface=new SurfaceGrid(roadMeshes);roadSurface.kerbs=new SurfaceGrid(kerbMeshes);groundSurface=new SurfaceGrid(groundMeshes);barriers=new BarrierGrid(barrierMeshes);
   await buildSelectedCar(mode,team,token,progress);return token===generation;
  }
  const street=track.theme==='city',grass=track.theme==='texas'?'#82836a':street?'#788a7d':'#71835c';
@@ -72,7 +77,7 @@ export function createWorld(canvas){
  }
  async function buildSelectedCar(mode,team,token,progress){if(mode==='rally'){buildCar(mode);return;}progress('Loading team car…');let model=await loadTeam(team);if(token!==generation){disposeModel(model.root);return;}carGroup=model.root;group.add(carGroup);importedWheels=model.wheels;frontWheels=[];steeringWheel=model.steering;}
  async function changeTeam(team,progress){const token=++generation;if(carGroup){group.remove(carGroup);disposeModel(carGroup);carGroup=null;}importedWheels=[];await buildSelectedCar('formula',team,token,progress);return token===generation;}
- function surfaceAt(x,z,road,car,vehicle){if(!roadSurface)return road;const h=roadSurface.height(x,z),ground=groundSurface.height(x,z);let wheelGrip=[],wheelsOff=0;if(car&&vehicle)for(let long of [vehicle.a,-vehicle.b])for(let side of [-1,1]){let lat=side*vehicle.track/2,wx=x+Math.sin(car.yaw)*long+Math.cos(car.yaw)*lat,wz=z+Math.cos(car.yaw)*long-Math.sin(car.yaw)*lat;let off=roadSurface.height(wx,wz)===null;wheelsOff+=Number(off);wheelGrip.push(off?.90:1);}return {...road,y:h??ground??road.y,surfaceOff:h===null,wheelGrip,wheelsOff};}
+ function surfaceAt(x,z,road,car,vehicle){if(!roadSurface)return road;const h=roadSurface.height(x,z),ground=groundSurface.height(x,z);let wheelGrip=[],wheelsOff=0,unsafeWheels=0;if(car&&vehicle)for(let long of [vehicle.a,-vehicle.b])for(let side of [-1,1]){let lat=side*vehicle.track/2,wx=x+Math.sin(car.yaw)*long+Math.cos(car.yaw)*lat,wz=z+Math.cos(car.yaw)*long-Math.sin(car.yaw)*lat;let off=roadSurface.height(wx,wz)===null;const kh=roadSurface.kerbs?.height(wx,wz);const safeKerb=off&&kh!=null&&Math.abs(kh-(h??ground??road.y))<.08;unsafeWheels+=Number(off&&!safeKerb);wheelsOff+=Number(off);wheelGrip.push(off?.90:1);}return {...road,y:h??ground??road.y,surfaceOff:h===null,wheelGrip,wheelsOff,unsafeWheels};}
  function buildCar(mode){carGroup=new T.Group();group.add(carGroup);frontWheels=[];const body=mat('#c3f36d',{metalness:.3,roughness:.38}),carbon=mat('#17242b',{roughness:.55}),tyre=mat('#151a1e');
  if(mode==='formula'){
  box(carGroup,1.1,.36,3.5,body,0,.48,-.3);box(carGroup,.48,.22,2.5,body,0,.40,1.65);box(carGroup,1.8,.12,3.0,carbon,0,.2,-.5);box(carGroup,1.8,.42,1.4,body,0,.55,-.75);box(carGroup,1.95,.11,.65,carbon,0,.26,2.75);box(carGroup,1.85,.12,.55,body,0,1.05,-2.05);for(let s of [-1,1]){box(carGroup,.08,.5,.65,carbon,s*.9,.78,-2.05);box(carGroup,.06,.07,3.8,carbon,s*.61,.4,.1);}
@@ -89,6 +94,13 @@ export function createWorld(canvas){
    const root=entry.model.root,c={...p.car},blend=1;if(local){const contact=carContact(local.car,c,local.team,p.team);if(contact){c.x-=contact.nx*(contact.depth+.001);c.z-=contact.nz*(contact.depth+.001);}}root.position.lerp(new T.Vector3(c.x,c.y+.035,c.z),blend);root.rotation.y+=Math.atan2(Math.sin(c.yaw-root.rotation.y),Math.cos(c.yaw-root.rotation.y))*blend;root.visible=!p.dnf;for(const w of entry.model.wheels){w.pivot.rotation.y=w.front?c.steer:0;w.spin.rotation.x=c.distance/.36;}entry.placed=true;
   }
  }
+ let ghostRoot=null,ghostSource=null;
+ function timeTrialGhost(pose,local){
+  if(ghostSource!==carGroup&&ghostRoot){scene.remove(ghostRoot);ghostRoot.traverse(o=>{if(o.isMesh)for(const m of Array.isArray(o.material)?o.material:[o.material])m.dispose();});ghostRoot=null;}
+  if(!pose||!carGroup){if(ghostRoot)ghostRoot.visible=false;return;}
+  if(!ghostRoot){ghostSource=carGroup;ghostRoot=carGroup.clone(true);ghostRoot.traverse(o=>{if(o.isMesh){o.material=new T.MeshBasicMaterial({color:0x9db9ed,transparent:true,opacity:.24,depthWrite:false});o.castShadow=false;o.receiveShadow=false;}});scene.add(ghostRoot);}
+  ghostRoot.visible=Math.hypot(local.x-pose.x,local.z-pose.z)>3;ghostRoot.position.set(pose.x,pose.y+.035,pose.z);ghostRoot.rotation.set(0,pose.yaw,0);
+ }
  function render(car,road,track,view,menu,time,dt,guide){
  if(!carGroup)return;guideGroup.visible=false;carGroup.position.set(car.x,road.y+.035,car.z);carGroup.rotation.set(-Math.atan(road.slope||0),car.yaw,-car.ay*.0004);frontWheels.forEach(w=>w.rotation.y=car.steer);if(steeringWheel)steeringWheel.rotation.z=-car.steer*3;for(let w of importedWheels){w.pivot.rotation.y=w.front?car.steer:0;w.spin.rotation.x=car.distance/.36;}
  let f=new T.Vector3(Math.sin(car.yaw),0,Math.cos(car.yaw)),pos=new T.Vector3(car.x,road.y,car.z),target,look;
@@ -96,8 +108,9 @@ export function createWorld(canvas){
  else if(view==='chase'){if(!wasChase||lastChaseCar!==car||Math.hypot(camera.position.x-car.x,camera.position.z-car.z)>30)chaseState.yaw=car.yaw;const rig=chasePose(car,road.y,chaseState,dt);target=new T.Vector3(rig.position.x,rig.position.y,rig.position.z);look=new T.Vector3(rig.look.x,rig.look.y,rig.look.z);carGroup.visible=true;}
  else{let cockpit=view==='cockpit';target=pos.clone().addScaledVector(f,cockpit?.10:-.85).add(new T.Vector3(0,cockpit?1.03:1.65,0));look=target.clone().addScaledVector(f,55).add(new T.Vector3(0,(road.slope||0)*55-(cockpit?.7:6.5),0));carGroup.visible=true;}
  lastChaseCar=car;wasChase=!menu&&view==='chase';camera.position.lerp(target,menu?1-Math.exp(-dt*6):1);camera.lookAt(look);sun.position.set(car.x-140,road.y+220,car.z+120);sun.target.position.set(car.x,road.y,car.z);sun.target.updateMatrixWorld();renderer.render(scene,camera);
+ if(!menu){const rect=document.getElementById('rearMirror').getBoundingClientRect();if(rect.width&&rect.height){rearCamera.aspect=rect.width/rect.height;rearCamera.updateProjectionMatrix();rearCamera.position.copy(pos).addScaledVector(f,-3.2).add(new T.Vector3(0,1.35,0));rearCamera.lookAt(rearCamera.position.clone().addScaledVector(f,-60));const visible=carGroup.visible,shadowUpdate=renderer.shadowMap.autoUpdate;carGroup.visible=false;renderer.shadowMap.autoUpdate=false;renderer.setRenderTarget(rearTarget);renderer.setScissorTest(false);renderer.render(scene,rearCamera);renderer.setRenderTarget(null);renderer.setScissorTest(true);renderer.setScissor(rect.left,innerHeight-rect.bottom,rect.width,rect.height);renderer.setViewport(rect.left,innerHeight-rect.bottom,rect.width,rect.height);renderer.clearDepth();renderer.render(mirrorScene,mirrorCamera);renderer.setScissorTest(false);renderer.setViewport(0,0,innerWidth,innerHeight);renderer.shadowMap.autoUpdate=shadowUpdate;carGroup.visible=visible;}}
  }
  addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
- return {build,changeTeam,render,raceOpponents,renderer,surfaceAt,contact:(x,y,z)=>barriers?.contact(x,y,z)};
+ return {build,changeTeam,render,timeTrialGhost,raceOpponents,renderer,surfaceAt,contact:(x,y,z)=>barriers?.contact(x,y,z)};
 }
 

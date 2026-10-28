@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "start": "node server.mjs",
-    "test": "node tests.mjs && node handling-tests.mjs && node keyboard-model-tests.mjs && node transition-tests.mjs && node digital-lap-test.mjs && node abs-limits-tests.mjs && node surface-feedback-tests.mjs && node circuit-audit.mjs && node multiplayer-tests.mjs && node network-motion-tests.mjs && node session-handling-tests.mjs && node race-start-tests.mjs && node car-contact-tests.mjs"
+    "test": "node tests.mjs && node handling-tests.mjs && node keyboard-model-tests.mjs && node transition-tests.mjs && node digital-lap-test.mjs && node abs-limits-tests.mjs && node surface-feedback-tests.mjs && node circuit-audit.mjs && node multiplayer-tests.mjs && node network-motion-tests.mjs && node session-handling-tests.mjs && node race-start-tests.mjs && node car-contact-tests.mjs && node time-trial-tests.mjs && node ai-race-tests.mjs && node ai-traffic-tests.mjs && node ai-skill-test.mjs && node ai-planner-tests.mjs && node ai-line-following-tests.mjs && node ai-aggression-tests.mjs && node ai-plan-loading-tests.mjs",
+    "build:ai": "node build-ai-plan.mjs"
   }
 }

@@ -1,0 +1,16 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+import {installRacingLine,racingLine} from './ai-line.js';
+import {AIRace} from './ai-race.js';
+import {loadRaceWorld} from './race-world.mjs';
+const {track,surface}=loadRaceWorld(),data=JSON.parse(fs.readFileSync('data/gb-1948-ai-plan.json','utf8'));
+const start=performance.now();
+installRacingLine(track,data);
+globalThis.window={};
+for(let i=0;i<20;i++)new AIRace(track,surface,{count:3,difficulty:i*5,aggression:50});
+delete globalThis.window;
+const elapsed=performance.now()-start;
+assert.equal(racingLine(track,()=>{throw Error('recomputed plan');}).plannedTime,data.plannedTime);
+assert.throws(()=>installRacingLine({...track,length:1},data),/match circuit/);
+console.log({twentyRaceSelectionsMs:elapsed,planBytes:fs.statSync('data/gb-1948-ai-plan.json').size});
+console.log('PASS: browser race construction uses loaded plan, no optimizer or corridor scan.');

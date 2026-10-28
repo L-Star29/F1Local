@@ -1,3 +1,4 @@
+import {createHash} from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -6,7 +7,11 @@ import {teams} from './model-assets.js';
 
 const root=path.dirname(fileURLToPath(import.meta.url));
 const output=path.join(root,'dist-pages');
-const files=['network-motion.js','setup-flow.js','garage-preview.js','race-start.js','car-contact.js','car-footprints.js','practice-starts.js','solo-session.js','multiplayer-config.json','index.html','credits.html','style.css','game.js','world.js','physics.js','tracks.js','surface.js','model-assets.js','track-catalog.js','controls.js','camera-rig.js','driving-feedback.js','track-limits.js','multiplayer.js','data/LICENSE.md'];
+const aiHash=createHash('sha256');
+for(const file of ['ai-line.js','physics.js','race-world.mjs','surface.js','data/gb-1948-model-track.json'])aiHash.update(await fs.readFile(path.join(root,file)));
+const aiPlan=JSON.parse(await fs.readFile(path.join(root,'data/gb-1948-ai-plan.json'),'utf8'));
+if(aiPlan.fingerprint!==aiHash.digest('hex'))throw Error('AI plan is stale. Run node build-ai-plan.mjs before deploying.');
+const files=['data/gb-1948-ai-plan.json','ai-line.js','ai-race.js','time-trial.js','network-motion.js','setup-flow.js','garage-preview.js','race-start.js','car-contact.js','car-footprints.js','practice-starts.js','solo-session.js','multiplayer-config.json','index.html','credits.html','style.css','game.js','world.js','physics.js','tracks.js','surface.js','model-assets.js','track-catalog.js','controls.js','camera-rig.js','driving-feedback.js','track-limits.js','multiplayer.js','data/LICENSE.md'];
 async function collect(folder){for(const entry of await fs.readdir(path.join(root,folder),{withFileTypes:true})){const relative=folder+'/'+entry.name;if(entry.isDirectory())await collect(relative);else files.push(relative);}}
 await collect('vendor');
 for(const team of teams)files.push('Car Models/'+team.file);

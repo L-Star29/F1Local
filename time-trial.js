@@ -1,0 +1,11 @@
+// Local-only personal bests. No account, server or telemetry.
+export class TimeTrial {
+ constructor(storage){this.storage=storage;this.memory=new Map();this.record=null;this.points=[];this.saved=true;}
+ load(key){this.key='f-local-tt-v1-'+key;this.record=this.memory.get(this.key)||null;try{const r=this.record||JSON.parse(this.storage?.getItem(this.key)||'null');if(r?.version===1&&Number.isFinite(r.time)&&r.time>0&&Array.isArray(r.points)&&r.points.length>=2&&r.points.length<=18002&&r.points.every(p=>Array.isArray(p)&&p.length===6&&p.every(Number.isFinite))&&r.points.every((p,i)=>!i||p[0]>=r.points[i-1][0]&&p[1]>=r.points[i-1][1])&&Array.isArray(r.sectors)&&r.sectors.length===3&&r.sectors.every(Number.isFinite))this.record=r;}catch{}this.reset();return this.record;}
+ reset(){this.points=[];this.next=0;this.lastProgress=0;this.usable=true;}
+ capture(time,progress,car,y,force=false){if(progress<this.lastProgress-5)this.usable=false;this.lastProgress=Math.max(this.lastProgress,progress);if(time<this.next&&!force)return;this.next=time+.1;if(this.points.length>=18000){this.usable=false;return;}this.points.push([time,Math.max(0,this.lastProgress),car.x,y,car.z,car.yaw].map(n=>Math.round(n*10000)/10000));}
+ finish(time,sectors,valid){if(!valid||!this.usable||this.points.length<2||this.record&&time>=this.record.time)return false;this.record={version:1,time,sectors:sectors.slice(),points:this.points.slice(),date:new Date().toISOString()};this.memory.set(this.key,this.record);this.saved=true;try{if(!this.storage)throw Error();this.storage.setItem(this.key,JSON.stringify(this.record));}catch{this.saved=false;}return true;}
+ interpolate(value,column){const a=this.record?.points;if(!a||value<a[0][column]||value>a.at(-1)[column])return null;let lo=0,hi=a.length-1;while(hi-lo>1){const mid=(lo+hi)>>1;if(a[mid][column]<=value)lo=mid;else hi=mid;}const p=a[lo],q=a[hi],f=(value-p[column])/(q[column]-p[column]||1);return {p,q,f};}
+ delta(time,progress){const v=this.interpolate(progress,1);return v?time-(v.p[0]+(v.q[0]-v.p[0])*v.f):null;}
+ pose(time){const v=this.interpolate(time,0);if(!v)return null;const {p,q,f}=v,lerp=i=>p[i]+(q[i]-p[i])*f;return {x:lerp(2),y:lerp(3),z:lerp(4),yaw:p[5]+Math.atan2(Math.sin(q[5]-p[5]),Math.cos(q[5]-p[5]))*f};}
+}

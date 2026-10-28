@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {TimeTrial} from './time-trial.js';
+const store=new Map(),storage={getItem:k=>store.get(k),setItem:(k,v)=>store.set(k,v)},t=new TimeTrial(storage),car={x:0,z:0,yaw:3.1};
+t.load('silverstone-formula-auto-standard');
+t.capture(0,0,car,0,true);t.capture(10,100,{...car,x:100,yaw:-3.1},0,true);t.capture(30,300,{...car,x:300},0,true);
+assert.equal(t.finish(30,[10,10,10],false),false);assert.equal(t.finish(30,[10,10,10],true),true);
+assert.equal(t.delta(6,50),1);assert.equal(t.pose(5).x,50);assert.ok(Math.abs(t.pose(5).yaw-Math.PI)<.01);assert.equal(t.pose(31),null);
+const reload=new TimeTrial(storage);reload.load('silverstone-formula-auto-standard');assert.equal(reload.record.time,30);reload.load('spa-formula-auto-standard');assert.equal(reload.record,null);
+t.reset();t.capture(0,0,car,0,true);t.capture(10,100,car,0,true);t.capture(20,20,car,0,true);assert.equal(t.finish(20,[5,5,10],true),false,'reverse progress cannot save a ghost');
+t.reset();t.capture(0,0,car,0,true);t.capture(40,300,car,0,true);assert.equal(t.finish(40,[10,10,20],true),false,'slower lap preserves PB');
+const blocked=new TimeTrial({getItem(){throw Error()},setItem(){throw Error()}});blocked.load('test');blocked.capture(0,0,car,0,true);blocked.capture(10,100,car,0,true);assert.equal(blocked.finish(10,[3,3,4],true),true);assert.equal(blocked.saved,false);blocked.load('test');assert.equal(blocked.record.time,10);
+store.set('f-local-tt-v1-bad','{"version":1,"time":12,"points":[[0],[1]],"sectors":[]}');reload.load('bad');assert.equal(reload.record,null);
+console.log('PASS: valid-only PB, persistence and circuit isolation, live delta, ghost interpolation/wrapped yaw, reverse rejection, slower lap protection and unavailable/corrupt storage.');

@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import {AIRace,gridCar} from './ai-race.js';
+import {loadRaceWorld} from './race-world.mjs';
+const w=loadRaceWorld(),r=new AIRace(w.track,w.surface,{count:1,aggression:100});
+const b=r.bots[0],c=b.car;c.u=40;
+const behind=gridCar(w.track,4,w.surface);behind.u=50;
+r.controls(b,w.surface(c),[{car:behind}],.05);
+assert.ok(b.defendTime>0,'aggressive driver defends a closing challenger');
+assert.ok(b.defendCooldown>0,'one committed move has a cooldown');
+const offset=b.offset;
+const side={...c,x:c.x+Math.cos(c.yaw)*3,z:c.z-Math.sin(c.yaw)*3,u:41};
+r.controls(b,w.surface(c),[{car:side}],.05);
+assert.equal(b.offset,offset,'hold lane when overlapped');
+b.defendTime=b.defendCooldown=0;b.offset=0;r.aggression=0;
+r.controls(b,w.surface(c),[{car:behind}],.05);
+assert.equal(b.defendTime,0,'low aggression avoids defensive move');
+console.log('PASS: defensive commitment, cooldown, overlap room and low-aggression behavior.');

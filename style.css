@@ -51,3 +51,53 @@ body[data-stage] #raceStatus{margin:12px 0;color:#efb8b4}
 @media(max-width:650px){.team-cards{grid-template-columns:repeat(3,1fr)}#joinShortcut{margin-left:0}.menu-top{flex-wrap:wrap}.start-lights{gap:7px}.start-lights i{width:25px;height:25px}#startDisplay{min-width:270px;padding:12px}}
 body[data-stage=garage] .garage{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(225px,1fr);gap:14px;max-width:1080px;align-items:start}body[data-stage=garage] .garage>*{grid-column:2}body[data-stage=garage] .garage>.car-showroom{grid-column:1;grid-row:1/span 9;min-width:0;margin:0}body[data-stage=garage] .garage>#soloResult{grid-column:1/-1}body[data-stage=garage] .garage:has(#soloResult:not([hidden]))>.car-showroom{grid-row:2/span 9}body[data-stage=garage] .garage .team-cards{grid-template-columns:repeat(3,1fr)}body[data-stage=garage] .garage .options{grid-template-columns:1fr;margin:0}body[data-stage=garage] .garage .second{margin-top:0}body[data-stage=garage] .garage .primary{margin-top:0}.team-cards small{font-size:8px}.preview-status{line-height:1.5}
 @media(max-width:800px){body[data-stage=garage] .garage{display:block}body[data-stage=garage] .garage>.car-showroom{margin-bottom:22px}body[data-stage=garage] .garage .options{margin:16px 0}}
+/* Driving instruments: clear sight lines, with camera-specific safe areas. */
+#hud{pointer-events:none;font-variant-numeric:tabular-nums}
+#hud .telemetry{position:fixed;left:50%;right:auto;bottom:24px;transform:translateX(-50%);width:304px;padding:12px 18px 11px;border-radius:18px;background:linear-gradient(145deg,#17191feb,#0b0d12ed);border:1px solid #ffffff26;box-shadow:0 10px 30px #0005;backdrop-filter:none}
+#hud .revbar{height:3px;border-radius:3px;overflow:hidden;background:#ffffff18}
+#hud .revbar i{background:linear-gradient(90deg,#ff8a66,#ff433e);box-shadow:0 0 10px #ff493e70}
+#hud .speedrow{display:flex;align-items:center;justify-content:flex-start;gap:18px;margin:5px 0 8px}
+#hud .speed-value{display:flex;align-items:baseline;min-width:135px}
+#hud .speedrow strong{font-size:52px;font-weight:750;line-height:1;letter-spacing:-2px;color:#fff}
+#hud .speed-value>span{font-size:9px;letter-spacing:1px;margin-left:8px;color:#aeb3c0}
+#hud .gear-value{border-left:1px solid #ffffff24;padding-left:17px;display:grid;gap:1px;min-width:43px}
+#hud .gear-value small{font-size:7px;letter-spacing:1.4px;color:#949ba9}
+#hud #gear{font-size:30px;line-height:1;font-weight:700;color:#ff6256}
+#hud #hudCamera{margin-left:auto;font-size:8px;writing-mode:vertical-rl;letter-spacing:1.6px;color:#7e8797}
+#hud .pedals{gap:16px}#hud .pedals span{font-size:7px;letter-spacing:1.5px;color:#a9afbd}#hud .pedals i{height:3px;margin-top:4px;border-radius:3px;overflow:hidden;background:#ffffff1a}
+#hud .info{margin-top:9px;font-size:8px;letter-spacing:.3px;align-items:center;color:#a9afbd;gap:8px}#hud #assistState:empty{display:none}#hud #assistState{color:#ffb49e;font-weight:700;white-space:nowrap}#hud #grip{margin-right:auto}#hud #gforce{white-space:nowrap}
+body[data-camera=tv] #hud .telemetry{left:24px;transform:none}
+body[data-camera=cockpit] #hud .telemetry{left:auto;right:24px;transform:none}
+#hud .timing{top:90px;left:24px;width:230px;padding:13px 15px;border-radius:12px;background:#10131bd6;border-color:#ffffff1a}
+#hud .timing .eyebrow{font-size:8px;letter-spacing:1.5px;color:#acb2c1}#hud .lap{margin:9px 0}#hud .lap strong{font-size:25px;font-weight:650;letter-spacing:-.8px}#hud .times{font-size:8px}#hud #sectors{margin-top:9px}#hud #sectors span{border-radius:3px;background:#ffffff08;color:#c4c9d4}
+#hud .map{top:90px;right:24px;width:165px;padding:8px;border:0;border-radius:12px;background:linear-gradient(#10131bba,#10131b55)}#hud .map canvas{width:149px;height:112px}#hud .map>span{font-size:7px;letter-spacing:1.4px}
+#hud #message{bottom:185px;max-width:min(420px,70vw);padding:9px 15px;border:1px solid #ffffff20;border-radius:20px;background:#14171ee8;font-size:11px;box-shadow:0 5px 20px #0003}
+#hud .bottomhelp,#hud .raceHelp{left:50%;right:auto;bottom:7px;transform:translateX(-50%);max-width:95vw;white-space:nowrap;font-size:8px;opacity:.65}#hud .bottomhelp kbd{font-size:8px;border:0;padding:0 2px}
+#raceOverlay{top:203px;left:24px;max-width:230px}#racePositions{font-size:10px;border-radius:8px;background:#10131bd6;padding:9px 12px}.in-race #hud .timing{height:96px}
+@media(max-width:720px){#hud .telemetry,body[data-camera=tv] #hud .telemetry,body[data-camera=cockpit] #hud .telemetry{width:258px;bottom:14px;padding:10px 14px;left:50%;right:auto;transform:translateX(-50%)}#hud .speedrow strong{font-size:44px}#hud .speed-value{min-width:115px}#hud .speedrow{gap:12px}#hud .timing{left:12px;top:80px;width:205px}#hud .map{display:none}#hud #message{bottom:163px}#raceOverlay{left:12px;top:190px}#hud .bottomhelp,#hud .raceHelp{display:none}}
+@media(max-height:560px){#hud .timing{top:70px;padding:9px 12px}#hud .times,#hud #sectors,#hud .map,#hud .bottomhelp,#hud .raceHelp{display:none}#hud .telemetry{bottom:12px}#hud .info{display:none}#hud #message{bottom:148px}#raceOverlay{top:162px}.in-race #hud .timing{height:80px}}
+/* Chase view leaves a clear gap below the rear tyres. */
+body[data-camera=chase] #hud .telemetry{bottom:18px;padding:8px 16px;width:304px}
+body[data-camera=chase] #hud .speedrow{margin:4px 0 6px}
+body[data-camera=chase] #hud .speedrow strong{font-size:42px}
+body[data-camera=chase] #hud .info{margin-top:6px;font-size:7px}
+body:has(#hud:not([hidden])) header{height:64px;padding:0 24px;background:linear-gradient(#101219d9,transparent);border-bottom:0}
+body:has(#hud:not([hidden])) .brand{font-size:21px}
+body:has(#hud:not([hidden])) .brand small{display:none}
+body:has(#hud:not([hidden])) header .live{font-size:8px;letter-spacing:1.5px}
+body:has(#hud:not([hidden])) #menuButton{padding:8px 11px;font-size:10px;background:#13151bb3}
+@media(max-width:720px){body[data-camera=chase] #hud .telemetry{width:258px;bottom:14px}}
+/* Notices sit above the driving sight line, never across the player's car. */
+#hud #message{top:66px;bottom:auto;max-width:min(420px,52vw)}
+@media(max-width:720px){#hud #message{top:238px;bottom:auto;max-width:88vw}}
+@media(max-height:560px){#hud #message{top:65px;bottom:auto;max-width:44vw;font-size:10px;padding:7px 12px}}
+#trialFields{margin-top:22px;max-width:440px}#trialFields select{display:block;width:100%;padding:12px;margin:8px 0 14px;background:#24262c;color:white;border:1px solid #40424a;border-radius:4px}.ghost-toggle{display:flex;gap:8px;align-items:center;font-size:12px;margin-bottom:12px}.ghost-toggle input{accent-color:#ff493e}#trialFields .hint{line-height:1.7;margin-top:10px}
+#trialHud{position:fixed;top:250px;left:24px;width:230px;background:#10131bd6;border:1px solid #ffffff20;border-radius:12px;padding:13px 15px;display:grid;gap:8px}#trialHud small{font-size:8px;letter-spacing:1px;color:#b5bdcd}#trialDelta{font-size:23px;letter-spacing:-.5px;font-variant-numeric:tabular-nums}#trialDelta[data-pace=ahead]{color:#9db9ed}#trialDelta[data-pace=behind]{color:#ff8c80}#trialSector{font-size:10px;color:#d8dce5;line-height:1.5}
+@media(max-width:720px){#trialHud{left:12px;top:250px;width:205px}}@media(max-height:560px){#trialHud{top:163px;padding:8px 12px}#trialSector,#trialHint{display:none}}
+#aiFields{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}#aiFields select{margin-top:8px}#soloResult{font-size:13px;white-space:normal}
+body[data-session=race] #hud .timing .times,body[data-session=race] #hud #sectors{display:none}body[data-session=race] #hud .timing{height:96px}
+#rearMirror{position:fixed;left:50%;top:10px;transform:translateX(-50%);width:340px;height:78px;border:2px solid #363a44;border-radius:5px;box-shadow:0 4px 12px #0006;overflow:hidden}#rearMirror span{position:absolute;bottom:3px;left:7px;font-size:7px;letter-spacing:1.5px;color:#fff;text-shadow:0 1px 3px #000}body:has(#hud:not([hidden])) header .live{display:none}#aiSkillValue{float:right;color:#ff6559;font-weight:700}#aiDifficulty{width:100%;margin-top:18px;accent-color:#ff493e;cursor:pointer}@media(max-width:720px){#rearMirror{width:230px;height:58px;top:8px}}@media(max-width:450px){#rearMirror{width:180px;height:48px;top:50px}}
+
+#hud #message{top:102px}body:has(#startDisplay:not([hidden])) #hud #message{display:none}
+
+#aiAggression{width:100%;margin-top:18px;accent-color:#ff493e}#aiAggressionValue{float:right;color:#ff6559;font-weight:700}
