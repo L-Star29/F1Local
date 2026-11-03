@@ -28,6 +28,7 @@ export function carContact(a,b,teamA,teamB){
 }
 export function resolveCarContact(a,b,teamA,teamB){
  const hit=carContact(a,b,teamA,teamB);if(!hit)return false;
+ a.contactAge=b.contactAge=0;
  const {nx,nz,depth}=hit;
  a.x+=nx*(depth+.001)*.5;a.z+=nz*(depth+.001)*.5;b.x-=nx*(depth+.001)*.5;b.z-=nz*(depth+.001)*.5;
  const va=bodyToWorld(a.yaw,a.u,a.v),vb=bodyToWorld(b.yaw,b.u,b.v),closing=(va.x-vb.x)*nx+(va.z-vb.z)*nz;

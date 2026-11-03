@@ -1,20 +1,20 @@
 [
   {
     "kmh": 108,
-    "yawOvershootPercent": 8.464453898959245,
-    "lateralG": 1.9836745907886417,
-    "frontSlipDegrees": 4.806474075803371
+    "yawOvershootPercent": 7.886624592916669,
+    "lateralG": 2.006815507242438,
+    "frontSlipDegrees": 4.721441326570262
   },
   {
     "kmh": 180,
-    "yawOvershootPercent": 16.471649942633746,
-    "lateralG": 2.638251024382726,
-    "frontSlipDegrees": 4.332521604374346
+    "yawOvershootPercent": 14.945768072305142,
+    "lateralG": 2.6984302282303347,
+    "frontSlipDegrees": 4.215591601713351
   },
   {
     "kmh": 252,
-    "yawOvershootPercent": 20.17066229420992,
-    "lateralG": 3.6011105199778344,
-    "frontSlipDegrees": 4.146398186041671
+    "yawOvershootPercent": 17.870808559235396,
+    "lateralG": 3.711202387525546,
+    "frontSlipDegrees": 4.000757520375365
   }
 ]

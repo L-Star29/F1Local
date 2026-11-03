@@ -20,17 +20,18 @@ export function racingLine(track,surface){if(cache.has(track))return cache.get(t
 
  // Improve total predicted lap time with smooth, bounded lateral moves.
  // Whole-lap scoring propagates each exit's benefit into the following straight.
- let best=geometry(points,offset),profile=speedProfile(best,100),seedTime=profile.time;
+ let best=geometry(points,offset),profile=speedProfile(best,100,vehicles.formula,true),seedTime=speedProfile(best,100).time;
  for(const span of [144,72,36,18].map(m=>Math.max(3,Math.round(m/track.ds))))for(const amount of [2,-2,1,-1,.4,-.4]){
   for(let center=0;center<n;center+=span){
    const candidate=Float64Array.from(offset);
    for(let j=-span;j<=span;j++){const i=(center+j+n)%n;
     candidate[i]=clamp(candidate[i]+amount*.5*(1+Math.cos(Math.PI*j/span)),-bounds[i][0],bounds[i][1]);
    }
-   const trial=geometry(points,candidate),v=speedProfile(trial,100);
+   const trial=geometry(points,candidate),v=speedProfile(trial,100,vehicles.formula,true);
    if(v.time<profile.time-.0001){offset.set(candidate);best=trial;profile=v;}
   }
  }
+ profile=speedProfile(best,100);
  const result={...track,pts:best,bounds,seedTime,plannedTime:profile.time,profiles:new Map([[100,profile]])};
  cache.set(track,result);return result;
 }
@@ -48,9 +49,10 @@ function geometry(points,offset){
 // tyre-force oracle. The skill factor adjusts planning only, never physical grip.
 // A forward/backward cyclic sweep accounts for acceleration, braking, lateral
 // grip already consumed in turns, and the corner beyond the start/finish line.
-export function speedProfile(pts,skill=100){
- const p=vehicles.formula,n=pts.length,k=clamp(skill,0,100)/100,v=new Float64Array(n),top=65+30*k;
- const lateral=speed=>4*tyreCapacity((p.mass*9.81+p.aero*speed*speed)/4,p)/p.mass*(.55+.25*k);
+export function speedProfile(pts,skill=100,p=vehicles.formula,shapeSearch=false){
+ const n=pts.length,k=clamp(skill,0,100)/100,v=new Float64Array(n),top=65+30*k;
+ const capacity=speed=>4*tyreCapacity((p.mass*9.81+p.aero*speed*speed)/4,p)/p.mass;
+ const lateral=speed=>capacity(speed)*(.55+.25*k+.10*k*k);
  for(let i=0;i<n;i++){
   let lo=5,hi=top;
   for(let j=0;j<12;j++){const mid=(lo+hi)/2;if(mid*mid*Math.abs(pts[i].curve)<=lateral(mid))lo=mid;else hi=mid;}
@@ -58,24 +60,49 @@ export function speedProfile(pts,skill=100){
  }
  for(let pass=0;pass<5;pass++){
   for(let i=n-1;i>=0;i--){
-   const next=(i+1)%n,speed=v[next],lat=speed*speed*Math.abs(pts[next].curve),cap=lateral(speed);
-   const available=Math.sqrt(Math.max(0,1-(lat/cap)**2));
-   const brake=Math.min(p.brakes/p.mass,cap)*available+p.drag*speed*speed/p.mass;
+   const next=(i+1)%n,speed=v[next],lat=speed*speed*Math.abs(pts[next].curve),cap=capacity(speed);
+   const brake=shapeSearch?Math.min(p.brakes/p.mass,cap)*Math.sqrt(Math.max(0,1-(lat/cap)**2))+p.drag*speed*speed/p.mass:longitudinalCapacity(speed,pts[next].curve,p,true,pts[next].slope||0);
    v[i]=Math.min(v[i],Math.sqrt(speed*speed+2*Math.max(1,brake)*pts[i].segment));
   }
   for(let i=0;i<n;i++){
-   const next=(i+1)%n,speed=v[i],lat=speed*speed*Math.abs(pts[i].curve),cap=lateral(speed);
-   const available=Math.sqrt(Math.max(0,1-(lat/cap)**2));
-   const drive=Math.min(p.drive,p.power/Math.max(10,speed))/p.mass;
-   const accel=Math.max(.2,Math.min(drive,cap*available)-p.drag*speed*speed/p.mass);
+   const next=(i+1)%n,speed=v[i],lat=speed*speed*Math.abs(pts[i].curve),cap=capacity(speed);
+   const accel=Math.max(.2,shapeSearch?Math.min(Math.min(p.drive,p.power/Math.max(10,speed))/p.mass,cap*Math.sqrt(Math.max(0,1-(lat/cap)**2)))-p.drag*speed*speed/p.mass:longitudinalCapacity(speed,pts[i].curve,p,false,pts[i].slope||0));
    v[next]=Math.min(v[next],Math.sqrt(speed*speed+2*accel*pts[i].segment));
   }
  }
  let time=0;for(let i=0;i<n;i++)time+=2*pts[i].segment/(v[i]+v[(i+1)%n]);
  return {speeds:v,time};
 }
+// Planner approximation of THIS game's ABS/TC force budget. Rear-wheel drive
+// cannot spend the front axle's spare grip accelerating; ABS remains limited
+// by brake bias and the lateral force already required at each axle.
+export function longitudinalCapacity(speed,curve,p,braking,slope=0){
+ const wb=p.a+p.b,weight=p.mass*9.81,down=p.aero*speed*speed;
+ const lat=p.mass*speed*speed*Math.abs(curve),drag=p.drag*speed*speed+105;
+ let acceleration=braking?-15:5;
+ for(let iteration=0;iteration<2;iteration++){
+  const transfer=clamp(acceleration*p.mass*p.cg/wb,-weight*.3,weight*.3);
+  const front=weight*p.b/wb+down*p.aeroFront-transfer,rear=weight*p.a/wb+down*(1-p.aeroFront)+transfer;
+  const frontCap=2*tyreCapacity(Math.max(80,front/2),p)*.98,rearCap=2*tyreCapacity(Math.max(80,rear/2),p)*1.10;
+  const frontLat=Math.min(lat*p.b/wb,frontCap*(braking?.9:1)),rearLat=Math.min(lat*p.a/wb,rearCap*(braking?.9:1));
+  const frontLong=Math.sqrt(Math.max(0,frontCap**2-frontLat**2)),rearLong=Math.sqrt(Math.max(0,rearCap**2-rearLat**2));
+  if(braking)acceleration=-(Math.min(p.brakes*.62,frontLong*.98)+Math.min(p.brakes*.38,rearLong*.98)+drag)/p.mass-9.81*slope;
+  else acceleration=(Math.min(p.power/Math.hypot(speed,p.power/p.drive),rearLong*.96)-drag)/p.mass-9.81*slope;
+ }
+ return braking?-acceleration:acceleration;
+}
 export function plannedSpeed(line,s,skill){
- if(!line.profiles.has(skill))line.profiles.set(skill,speedProfile(line.pts,skill));
+ if(!line.profiles.has(skill))line.profiles.set(skill,speedProfile(line.pts,skill,line.vehicle||vehicles.formula));
  const v=line.profiles.get(skill).speeds,u=((s%line.length)+line.length)%line.length/line.ds,i=Math.floor(u),f=u-i;
  return v[i]*(1-f)+v[(i+1)%line.n]*f;
 }
+
+const variants=new WeakMap();
+export function performanceLine(line,boost=0){
+ if(!boost)return line;
+ if(!variants.has(line))variants.set(line,new Map());const all=variants.get(line);
+ if(!all.has(boost))all.set(boost,{...line,profiles:new Map(),vehicle:{...vehicles.formula,aero:vehicles.formula.aero*(1+.7*boost),power:vehicles.formula.power*(1+.05*boost),drive:vehicles.formula.drive*(1+.05*boost)}});
+ return all.get(boost);
+}
+
+

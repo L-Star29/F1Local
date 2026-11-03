@@ -30,7 +30,7 @@ export function createGameServer(worldFactory=loadRaceWorld){
    const identity=()=>{const name=String(data.name||'Driver').trim().slice(0,20)||'Driver';if(!['ferrari','redbull','mercedes','audi','cadillac'].includes(data.team))throw Error('Choose a team.');return {name,team:data.team};};
    let target=room;
    if(parts.length===2&&parts[1]==='rooms'){
-    if(rooms.size>=8)throw Error('Server is full. Try again later.');const {track,surface}=worldFactory();let code;do{code=randomBytes(3).toString('hex').toUpperCase();}while(rooms.has(code));identity();target=new RaceRoom(code,track,surface,[1,3,5].includes(data.laps)?data.laps:3);rooms.set(code,target);
+    if(rooms.size>=8)throw Error('Server is full. Try again later.');const {track,surface}=worldFactory();let code;do{code=randomBytes(3).toString('hex').toUpperCase();}while(rooms.has(code));identity();target=new RaceRoom(code,track,surface,[1,3,5].includes(data.laps)?data.laps:3,data.limits,data.strictness);rooms.set(code,target);
    }else if(parts[3]!=='join'){
     const auth=tokens.get(req.headers.authorization?.replace(/^Bearer /,''));if(!auth||!room||auth.room!==room)return json(res,403,{error:'Invalid room session.'});const p=auth.player;
     if(parts[3]==='input')room.setInput(p,data);
@@ -43,7 +43,7 @@ export function createGameServer(worldFactory=loadRaceWorld){
   }
   if(req.method!=='GET'&&req.method!=='HEAD'){res.writeHead(405).end();return;}
   const relative=decodeURIComponent(url.pathname).replace(/^\/+/, '')||'index.html';
-  const allowed=/^(index\.html|credits\.html|style\.css|game\.js|world\.js|physics\.js|tracks\.js|surface\.js|model-assets\.js|track-catalog\.js|controls\.js|camera-rig\.js|driving-feedback\.js|track-limits\.js|ai-line\.js|ai-race\.js|time-trial\.js|network-motion\.js|setup-flow\.js|garage-preview\.js|race-start\.js|car-contact\.js|car-footprints\.js|practice-starts\.js|solo-session\.js|multiplayer\.js|multiplayer-config\.json)$/.test(relative)||/^(vendor|data|Car Models|Race Track Models)\//.test(relative);
+  const allowed=/^(index\.html|credits\.html|style\.css|game\.js|timing-tower\.js|world\.js|physics\.js|tracks\.js|surface\.js|model-assets\.js|track-catalog\.js|controls\.js|camera-rig\.js|driving-feedback\.js|track-limits\.js|race-steward\.js|race-aero\.js|ai-racecraft\.js|proximity\.js|ai-driver\.js|ai-line\.js|ai-race\.js|time-trial\.js|network-motion\.js|setup-flow\.js|garage-preview\.js|race-start\.js|car-contact\.js|car-footprints\.js|practice-starts\.js|solo-session\.js|multiplayer\.js|multiplayer-config\.json)$/.test(relative)||/^(vendor|data|Car Models|Race Track Models)\//.test(relative);
   const file=path.resolve(root,relative);if(!allowed||!file.startsWith(root+path.sep)||relative.split(/[\\/]/).some(p=>p.startsWith('.'))){res.writeHead(404).end('Not found');return;}
   fs.readFile(file,(error,bytes)=>{if(error){res.writeHead(404).end('Not found');return;}res.writeHead(200,{'Content-Type':({'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.glb':'model/gltf-binary'})[path.extname(file)]||'application/octet-stream'});res.end(req.method==='HEAD'?undefined:bytes);});
  }catch(error){if(!res.headersSent)json(res,400,{error:error.message});else res.end();}});
@@ -51,3 +51,4 @@ export function createGameServer(worldFactory=loadRaceWorld){
  const timer=setInterval(()=>{const now=performance.now();accumulator+=Math.min((now-last)/1000,.1);last=now;while(accumulator>=1/120){for(const room of rooms.values())room.tick(1/120);accumulator-=1/120;}if(++broadcast%6===0)for(const room of rooms.values()){const event='data: '+JSON.stringify(room.snapshot())+'\n\n';for(const p of room.players){const s=streams.get(p.id);if(s&&!s.writableNeedDrain)s.write(event);}if(room.players.some(p=>p.connected))room.lastConnected=Date.now();if(!room.players.some(p=>p.connected)&&Date.now()-(room.lastConnected??room.created)>120000){rooms.delete(room.code);for(const [token,a]of tokens)if(a.room===room)tokens.delete(token);}}},8);
  timer.unref();server.shutdown=()=>{clearInterval(timer);for(const stream of streams.values())stream.end();server.close();};server.on('close',()=>clearInterval(timer));return server;
 }
+

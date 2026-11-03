@@ -34,4 +34,16 @@ export function makeTrack(feature,spec){
  return {...spec,pts,n,ds,bounds,speeds,scale};
 }
 export function sample(t,s){let u=((s%t.length)+t.length)%t.length/t.ds,i=Math.floor(u),f=u-i,a=t.pts[i],b=t.pts[(i+1)%t.n];return {...a,x:mix(a.x,b.x,f),y:mix(a.y,b.y,f),z:mix(a.z,b.z,f)};}
-export function nearest(t,x,z){let best=Infinity,out;for(let i=0;i<t.n;i++){const a=t.pts[i],b=t.pts[(i+1)%t.n],dx=b.x-a.x,dz=b.z-a.z,u=clamp(((x-a.x)*dx+(z-a.z)*dz)/(dx*dx+dz*dz),0,1),px=a.x+u*dx,pz=a.z+u*dz,d=(x-px)**2+(z-pz)**2;if(d<best){best=d;out={...a,x:px,z:pz,y:mix(a.y,b.y,u),index:i,s:(i+u)*t.ds,offset:(x-px)*a.nx+(z-pz)*a.nz,distance:Math.sqrt(d)}}}return out;}
+const nearestIndexes=new WeakMap();
+export function nearest(t,x,z){
+ let grid=nearestIndexes.get(t);const cell=20;
+ if(!grid){grid=new Map();for(let i=0;i<t.n;i++){const a=t.pts[i],b=t.pts[(i+1)%t.n];for(let gx=Math.floor(Math.min(a.x,b.x)/cell);gx<=Math.floor(Math.max(a.x,b.x)/cell);gx++)for(let gz=Math.floor(Math.min(a.z,b.z)/cell);gz<=Math.floor(Math.max(a.z,b.z)/cell);gz++){const k=gx+','+gz;if(!grid.has(k))grid.set(k,[]);grid.get(k).push(i);}}nearestIndexes.set(t,grid);}
+ const ids=new Set(),gx=Math.floor(x/cell),gz=Math.floor(z/cell);for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++)for(const i of grid.get((gx+a)+','+(gz+b))||[])ids.add(i);
+ let best=Infinity,out;
+ const inspect=i=>{const a=t.pts[i],b=t.pts[(i+1)%t.n],dx=b.x-a.x,dz=b.z-a.z,u=clamp(((x-a.x)*dx+(z-a.z)*dz)/(dx*dx+dz*dz),0,1),px=a.x+u*dx,pz=a.z+u*dz,d=(x-px)**2+(z-pz)**2;if(d<best){best=d;out={...a,x:px,z:pz,y:mix(a.y,b.y,u),index:i,s:(i+u)*t.ds,offset:(x-px)*a.nx+(z-pz)*a.nz,distance:Math.sqrt(d)}}};
+ // Ascending segment order preserves the original tie behaviour. Outside the
+ // local search radius, fall back to the full search rather than approximate.
+ for(const i of [...ids].sort((a,b)=>a-b))inspect(i);
+ if(best>=cell*cell){best=Infinity;for(let i=0;i<t.n;i++)inspect(i);}
+ return out;
+}

@@ -1,0 +1,183 @@
+{
+  "version": 1,
+  "method": "elitist evolutionary driver-policy search",
+  "target": 95,
+  "track": "gb-1948",
+  "fingerprint": "8f4759e47397417feb4db63a00a7483c1dd5d5fb6fca6704c91da8a03059f884",
+  "seed": 1882035417,
+  "champion": {
+    "driver": {
+      "slow": 1.0335343389073386,
+      "medium": 1.0038890711124986,
+      "fast": 1.0203240065369756,
+      "lookBase": 5.08637996413745,
+      "lookTime": 0.28117666674777864,
+      "yawGain": 0.00008456878655590117,
+      "crossGain": 0.008,
+      "preview": 0.0717512634396553,
+      "tightPreview": 0.21248756469693036,
+      "brakeGain": 0.2,
+      "throttleGain": 0.910296473093331,
+      "steering": 1.3155967565020545
+    },
+    "result": {
+      "valid": true,
+      "time": 100.86666666666667,
+      "standing": 105.1,
+      "maxError": 3.1795518913264353,
+      "progress": 11782.140767805478
+    }
+  },
+  "history": [
+    {
+      "generation": 1,
+      "result": {
+        "valid": true,
+        "time": 101.05833333333335,
+        "standing": 105.33333333333333,
+        "maxError": 2.989919404340017,
+        "progress": 11782.234188901799
+      }
+    },
+    {
+      "generation": 2,
+      "result": {
+        "valid": true,
+        "time": 101.03333333333335,
+        "standing": 105.24166666666666,
+        "maxError": 3.101798894106728,
+        "progress": 11782.112763679746
+      }
+    },
+    {
+      "generation": 3,
+      "result": {
+        "valid": true,
+        "time": 100.99166666666666,
+        "standing": 105.14166666666667,
+        "maxError": 3.1622964874973243,
+        "progress": 11782.142404125938
+      }
+    },
+    {
+      "generation": 4,
+      "result": {
+        "valid": true,
+        "time": 100.96666666666668,
+        "standing": 105.175,
+        "maxError": 2.850699996974233,
+        "progress": 11782.653871923496
+      }
+    },
+    {
+      "generation": 5,
+      "result": {
+        "valid": true,
+        "time": 100.92500000000001,
+        "standing": 105.15833333333333,
+        "maxError": 2.780763523488254,
+        "progress": 11782.400267526587
+      }
+    },
+    {
+      "generation": 6,
+      "result": {
+        "valid": true,
+        "time": 100.92500000000001,
+        "standing": 105.15833333333333,
+        "maxError": 2.780763523488254,
+        "progress": 11782.400267526587
+      }
+    },
+    {
+      "generation": 7,
+      "result": {
+        "valid": true,
+        "time": 100.91666666666666,
+        "standing": 105.15,
+        "maxError": 2.8324778721493393,
+        "progress": 11782.241734656776
+      }
+    },
+    {
+      "generation": 8,
+      "result": {
+        "valid": true,
+        "time": 100.89166666666668,
+        "standing": 105.125,
+        "maxError": 3.100446799464504,
+        "progress": 11782.067286201314
+      }
+    },
+    {
+      "generation": 9,
+      "result": {
+        "valid": true,
+        "time": 100.89166666666667,
+        "standing": 105.11666666666666,
+        "maxError": 3.102789997167967,
+        "progress": 11781.99999999996
+      }
+    },
+    {
+      "generation": 10,
+      "result": {
+        "valid": true,
+        "time": 100.89166666666667,
+        "standing": 105.11666666666666,
+        "maxError": 3.102789997167967,
+        "progress": 11781.99999999996
+      }
+    },
+    {
+      "generation": 11,
+      "result": {
+        "valid": true,
+        "time": 100.88333333333334,
+        "standing": 105.11666666666666,
+        "maxError": 3.162061033902016,
+        "progress": 11782.288732033598
+      }
+    },
+    {
+      "generation": 12,
+      "result": {
+        "valid": true,
+        "time": 100.88333333333334,
+        "standing": 105.11666666666666,
+        "maxError": 3.162061033902016,
+        "progress": 11782.288732033598
+      }
+    },
+    {
+      "generation": 13,
+      "result": {
+        "valid": true,
+        "time": 100.88333333333334,
+        "standing": 105.11666666666666,
+        "maxError": 3.162061033902016,
+        "progress": 11782.288732033598
+      }
+    },
+    {
+      "generation": 14,
+      "result": {
+        "valid": true,
+        "time": 100.86666666666667,
+        "standing": 105.1,
+        "maxError": 3.1795518913264353,
+        "progress": 11782.140767805478
+      }
+    },
+    {
+      "generation": 15,
+      "result": {
+        "valid": true,
+        "time": 100.86666666666667,
+        "standing": 105.1,
+        "maxError": 3.1795518913264353,
+        "progress": 11782.140767805478
+      }
+    }
+  ]
+}

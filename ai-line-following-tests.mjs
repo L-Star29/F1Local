@@ -16,6 +16,8 @@ for(let i=0;i<24000&&r.bots[0].finish===null;i++){
 }
 assert.ok(r.bots[0].finish!==null);
 const mean=total/rows.length;
+console.log({lap:r.bots[0].finish,mean,max});
+assert.ok(max<4,'reject large line misses even on paved runoff');
 assert.ok(mean<1,'mean lateral tracking error must stay below one metre');
 fs.writeFileSync('analysis/ai-line-following.csv','distance,actual_x,actual_z,planned_x,planned_z,speed_kmh,lateral_error,wheels_off\n'+rows.map(r=>r.join(',')).join('\n'));
 console.log({lap:r.bots[0].finish,meanLateralError:mean,maxLateralError:max,samples:rows.length});

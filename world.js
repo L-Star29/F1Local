@@ -1,3 +1,4 @@
+import {wheelBoundary} from './track-limits.js';
 import {carContact} from './car-contact.js';
 import {chasePose} from './camera-rig.js';
 import * as T from './vendor/three.module.js';
@@ -5,8 +6,18 @@ import {sample} from './tracks.js';
 import {loadTeam,loadModel,disposeModel} from './model-assets.js';
 import {SurfaceGrid,BarrierGrid} from './surface.js';
 const mat=(color,extra={})=>new T.MeshStandardMaterial({color,roughness:.86,...extra});
-export function createWorld(canvas){
- const renderer=new T.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;
+export function createWorld(canvas,lowPerformance=false){
+ const pixelRatio=()=>lowPerformance
+  ? Math.min(devicePixelRatio,1,Math.sqrt(1280*720/Math.max(1,innerWidth*innerHeight)))
+  : Math.min(devicePixelRatio,1.6);
+ function setLowPerformance(enabled){
+  if(enabled===lowPerformance)return;
+  lowPerformance=enabled;
+  renderer.setPixelRatio(pixelRatio());
+  renderer.shadowMap.enabled=!enabled;
+ }
+
+ const renderer=new T.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(pixelRatio());renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=!lowPerformance;renderer.shadowMap.type=T.PCFSoftShadowMap;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;
  const scene=new T.Scene();scene.background=new T.Color('#aecbd8');scene.fog=new T.Fog('#aecbd8',250,1800);const camera=new T.PerspectiveCamera(64,innerWidth/innerHeight,.08,5000);
  const rearCamera=new T.PerspectiveCamera(65,4,.1,450);
  const rearTarget=new T.WebGLRenderTarget(680,156),mirrorScene=new T.Scene(),mirrorCamera=new T.OrthographicCamera(-1,1,1,-1,0,1);
@@ -77,7 +88,7 @@ export function createWorld(canvas){
  }
  async function buildSelectedCar(mode,team,token,progress){if(mode==='rally'){buildCar(mode);return;}progress('Loading team car…');let model=await loadTeam(team);if(token!==generation){disposeModel(model.root);return;}carGroup=model.root;group.add(carGroup);importedWheels=model.wheels;frontWheels=[];steeringWheel=model.steering;}
  async function changeTeam(team,progress){const token=++generation;if(carGroup){group.remove(carGroup);disposeModel(carGroup);carGroup=null;}importedWheels=[];await buildSelectedCar('formula',team,token,progress);return token===generation;}
- function surfaceAt(x,z,road,car,vehicle){if(!roadSurface)return road;const h=roadSurface.height(x,z),ground=groundSurface.height(x,z);let wheelGrip=[],wheelsOff=0,unsafeWheels=0;if(car&&vehicle)for(let long of [vehicle.a,-vehicle.b])for(let side of [-1,1]){let lat=side*vehicle.track/2,wx=x+Math.sin(car.yaw)*long+Math.cos(car.yaw)*lat,wz=z+Math.cos(car.yaw)*long-Math.sin(car.yaw)*lat;let off=roadSurface.height(wx,wz)===null;const kh=roadSurface.kerbs?.height(wx,wz);const safeKerb=off&&kh!=null&&Math.abs(kh-(h??ground??road.y))<.08;unsafeWheels+=Number(off&&!safeKerb);wheelsOff+=Number(off);wheelGrip.push(off?.90:1);}return {...road,y:h??ground??road.y,surfaceOff:h===null,wheelGrip,wheelsOff,unsafeWheels};}
+ function surfaceAt(x,z,road,car,vehicle){if(!roadSurface)return road;const h=roadSurface.height(x,z),ground=groundSurface.height(x,z);let wheelGrip=[],wheelsOff=0,unsafeWheels=0,kerbWheelsOff=0,extendedWheelsOff=0;if(car&&vehicle)for(let long of [vehicle.a,-vehicle.b])for(let side of [-1,1]){let lat=side*vehicle.track/2,wx=x+Math.sin(car.yaw)*long+Math.cos(car.yaw)*lat,wz=z+Math.cos(car.yaw)*long-Math.sin(car.yaw)*lat;let off=roadSurface.height(wx,wz)===null;const kh=roadSurface.kerbs?.height(wx,wz);const safeKerb=off&&kh!=null&&Math.abs(kh-(h??ground??road.y))<.08;unsafeWheels+=Number(off&&!safeKerb);const legal=wheelBoundary(roadSurface,roadSurface.kerbs,wx,wz,h??ground??road.y);kerbWheelsOff+=Number(!legal.kerbs);extendedWheelsOff+=Number(!legal.extended);wheelsOff+=Number(off);wheelGrip.push(off?.90:1);}return {...road,y:h??ground??road.y,surfaceOff:h===null,wheelGrip,wheelsOff,unsafeWheels,kerbWheelsOff,extendedWheelsOff};}
  function buildCar(mode){carGroup=new T.Group();group.add(carGroup);frontWheels=[];const body=mat('#c3f36d',{metalness:.3,roughness:.38}),carbon=mat('#17242b',{roughness:.55}),tyre=mat('#151a1e');
  if(mode==='formula'){
  box(carGroup,1.1,.36,3.5,body,0,.48,-.3);box(carGroup,.48,.22,2.5,body,0,.40,1.65);box(carGroup,1.8,.12,3.0,carbon,0,.2,-.5);box(carGroup,1.8,.42,1.4,body,0,.55,-.75);box(carGroup,1.95,.11,.65,carbon,0,.26,2.75);box(carGroup,1.85,.12,.55,body,0,1.05,-2.05);for(let s of [-1,1]){box(carGroup,.08,.5,.65,carbon,s*.9,.78,-2.05);box(carGroup,.06,.07,3.8,carbon,s*.61,.4,.1);}
@@ -108,9 +119,9 @@ export function createWorld(canvas){
  else if(view==='chase'){if(!wasChase||lastChaseCar!==car||Math.hypot(camera.position.x-car.x,camera.position.z-car.z)>30)chaseState.yaw=car.yaw;const rig=chasePose(car,road.y,chaseState,dt);target=new T.Vector3(rig.position.x,rig.position.y,rig.position.z);look=new T.Vector3(rig.look.x,rig.look.y,rig.look.z);carGroup.visible=true;}
  else{let cockpit=view==='cockpit';target=pos.clone().addScaledVector(f,cockpit?.10:-.85).add(new T.Vector3(0,cockpit?1.03:1.65,0));look=target.clone().addScaledVector(f,55).add(new T.Vector3(0,(road.slope||0)*55-(cockpit?.7:6.5),0));carGroup.visible=true;}
  lastChaseCar=car;wasChase=!menu&&view==='chase';camera.position.lerp(target,menu?1-Math.exp(-dt*6):1);camera.lookAt(look);sun.position.set(car.x-140,road.y+220,car.z+120);sun.target.position.set(car.x,road.y,car.z);sun.target.updateMatrixWorld();renderer.render(scene,camera);
- if(!menu){const rect=document.getElementById('rearMirror').getBoundingClientRect();if(rect.width&&rect.height){rearCamera.aspect=rect.width/rect.height;rearCamera.updateProjectionMatrix();rearCamera.position.copy(pos).addScaledVector(f,-3.2).add(new T.Vector3(0,1.35,0));rearCamera.lookAt(rearCamera.position.clone().addScaledVector(f,-60));const visible=carGroup.visible,shadowUpdate=renderer.shadowMap.autoUpdate;carGroup.visible=false;renderer.shadowMap.autoUpdate=false;renderer.setRenderTarget(rearTarget);renderer.setScissorTest(false);renderer.render(scene,rearCamera);renderer.setRenderTarget(null);renderer.setScissorTest(true);renderer.setScissor(rect.left,innerHeight-rect.bottom,rect.width,rect.height);renderer.setViewport(rect.left,innerHeight-rect.bottom,rect.width,rect.height);renderer.clearDepth();renderer.render(mirrorScene,mirrorCamera);renderer.setScissorTest(false);renderer.setViewport(0,0,innerWidth,innerHeight);renderer.shadowMap.autoUpdate=shadowUpdate;carGroup.visible=visible;}}
+ if(!menu&&!lowPerformance){const rect=document.getElementById('rearMirror').getBoundingClientRect();if(rect.width&&rect.height){rearCamera.aspect=rect.width/rect.height;rearCamera.updateProjectionMatrix();rearCamera.position.copy(pos).addScaledVector(f,-3.2).add(new T.Vector3(0,1.35,0));rearCamera.lookAt(rearCamera.position.clone().addScaledVector(f,-60));const visible=carGroup.visible,shadowUpdate=renderer.shadowMap.autoUpdate;carGroup.visible=false;renderer.shadowMap.autoUpdate=false;renderer.setRenderTarget(rearTarget);renderer.setScissorTest(false);renderer.render(scene,rearCamera);renderer.setRenderTarget(null);renderer.setScissorTest(true);renderer.setScissor(rect.left,innerHeight-rect.bottom,rect.width,rect.height);renderer.setViewport(rect.left,innerHeight-rect.bottom,rect.width,rect.height);renderer.clearDepth();renderer.render(mirrorScene,mirrorCamera);renderer.setScissorTest(false);renderer.setViewport(0,0,innerWidth,innerHeight);renderer.shadowMap.autoUpdate=shadowUpdate;carGroup.visible=visible;}}
  }
- addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
- return {build,changeTeam,render,timeTrialGhost,raceOpponents,renderer,surfaceAt,contact:(x,y,z)=>barriers?.contact(x,y,z)};
+ addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setPixelRatio(pixelRatio());renderer.setSize(innerWidth,innerHeight)});
+ return {build,changeTeam,render,setLowPerformance,timeTrialGhost,raceOpponents,renderer,surfaceAt,contact:(x,y,z)=>barriers?.contact(x,y,z)};
 }
 

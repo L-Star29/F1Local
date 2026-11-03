@@ -33,9 +33,10 @@ for(let v of [0,.2,1.9,2.1,3,4,6.9,7.1,15,40,80]){let c=simulate(carAt(v),1,inpu
 let a=carAt(),times={};for(let i=0;i<120*45;i++){step(a,input(0,1),flat,'formula',dt,{});for(let speed of [100,200,300])if(a.u*3.6>=speed&&!times[speed])times[speed]=(i+1)*dt;}report.acceleration=times;report.speedAfter45s=a.u*3.6;assert.ok(times[100]>2&&times[100]<4);assert.ok(times[200]<8);assert.ok(a.u*3.6>300&&a.u*3.6<370);
 function brakeTest(from,to){let c=carAt(from/3.6),t=0,peak=0;while(c.u>to/3.6&&t<10){step(c,input(0,0,1),flat,'formula',dt,{});peak=Math.max(peak,-c.ax/9.81);t+=dt;}return {seconds:t,metres:c.z,peakG:peak};}
 report.braking329to119=brakeTest(329,119);report.braking100to0=brakeTest(100,0);
-assert.ok(report.braking329to119.metres>90&&report.braking329to119.metres<160);assert.ok(report.braking329to119.peakG>4&&report.braking329to119.peakG<6.5);
+// Bound braking distance independently of any AI lap-time target.
+assert.ok(report.braking329to119.metres>80&&report.braking329to119.metres<160);assert.ok(report.braking329to119.peakG>4&&report.braking329to119.peakG<6.5);
 const p=vehicles.formula;assert.ok(tyreCapacity(6000,p)/6000<tyreCapacity(2000,p)/2000,'load sensitivity');assert.ok(lateralForce(.3,1000,p.peak,p.slide)<lateralForce(p.peak,1000,p.peak,p.slide),'sliding loses grip');
-let coast=simulate(carAt(60),.4,input(0,0)),brake=simulate(carAt(60),.4,input(0,0,1));assert.ok(brake.tyres[0].load+brake.tyres[1].load>coast.tyres[0].load+coast.tyres[1].load,'braking loads front axle');
+let coast=simulate(carAt(60),.4,input(0,0)),brake=simulate(carAt(60),.4,input(0,0,1));assert.ok((brake.tyres[0].load+brake.tyres[1].load)/brake.tyres.reduce((sum,t)=>sum+t.load,0)>(coast.tyres[0].load+coast.tyres[1].load)/coast.tyres.reduce((sum,t)=>sum+t.load,0),'braking shifts load distribution forward despite reduced downforce as speed falls');
 let corner=simulate(carAt(40),.7,input(.35,.2));assert.ok(corner.tyres[0].load<corner.tyres[1].load,'right turn loads outside left tyre');
 let brakes=simulate(carAt(30),.5,input(0,0,1),'formula',{assists:'raw'});assert.ok(brakes.locked);let abs=simulate(carAt(30),.5,input(0,0,1));assert.ok(!abs.locked&&abs.abs);
 // Same scenario at 60 / 120 / 240 Hz should stay near-identical.

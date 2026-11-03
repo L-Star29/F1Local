@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {longitudinalCapacity,speedProfile} from './ai-line.js';
+import {vehicles} from './physics.js';
+const p=vehicles.formula;
+assert.ok(longitudinalCapacity(30,0,p,false)>longitudinalCapacity(30,.016,p,false),'TC must leave less rear drive capacity during cornering');
+assert.ok(longitudinalCapacity(40,0,p,true)>longitudinalCapacity(40,.012,p,true),'ABS cannot combine full straight-line deceleration with cornering');
+assert.ok(longitudinalCapacity(50,0,p,false,.05)<longitudinalCapacity(50,0,p,false,-.05),'uphill acceleration costs speed');
+assert.ok(longitudinalCapacity(50,0,p,true,.05)>longitudinalCapacity(50,0,p,true,-.05),'uphill braking gains gravitational deceleration');
+const pts=Array.from({length:200},(_,i)=>({curve:i>90&&i<110?.025:0,segment:3,slope:0})),plan=speedProfile(pts,100);
+assert.ok(plan.speeds[80]>plan.speeds[95]);assert.ok(plan.speeds[80]<plan.speeds[20],'braking must propagate back from the corner');
+assert.ok(plan.speeds[120]<plan.speeds[160],'exit acceleration must carry into the following straight');
+console.log('PASS: rear-drive TC budget, combined ABS budget, gradient, braking anticipation and exit acceleration.');

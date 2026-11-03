@@ -101,3 +101,56 @@ body[data-session=race] #hud .timing .times,body[data-session=race] #hud #sector
 #hud #message{top:102px}body:has(#startDisplay:not([hidden])) #hud #message{display:none}
 
 #aiAggression{width:100%;margin-top:18px;accent-color:#ff493e}#aiAggressionValue{float:right;color:#ff6559;font-weight:700}
+
+#raceControlHud{position:absolute;left:28px;top:260px;max-width:300px;padding:10px 14px;background:rgba(15,20,29,.88);border-left:3px solid #ff6b52;border-radius:4px;color:#f2f4fa;font-size:12px;line-height:1.5;pointer-events:none}
+#drsState{font-size:10px;letter-spacing:.08em;color:#bcc4d0;margin:0 0 10px}
+
+@media(max-width:700px){#raceControlHud{left:12px;top:190px;max-width:220px;font-size:10px}}
+
+/* Keep race-control messages out of the mirror, road centre and position list. */
+#raceControlHud{left:auto;right:24px;top:240px;max-width:245px;border-radius:8px;font-size:11px;box-shadow:0 8px 24px #0002}
+.race-rules{margin-top:24px;max-width:640px;border:1px solid #ffffff20;border-radius:8px;background:#171a22;padding:14px 16px}.race-rules summary{cursor:pointer;font-size:13px;color:#f1f3f8}.race-rules p{font-size:12px;line-height:1.65;color:#acb5c5;margin:14px 0 0}.race-rules strong{color:#e9edf5}
+#aiFields label{min-width:0}#aiFields select{width:100%;max-width:100%;text-overflow:ellipsis}#aiFields label:last-child{grid-column:1/-1}
+@media(max-width:720px){#raceControlHud{right:12px;left:auto;top:125px;max-width:160px;font-size:10px}#aiFields{grid-template-columns:1fr}.race-rules{padding:12px}}
+@media(max-height:560px){#raceControlHud{top:162px;right:12px;max-width:200px;font-size:10px}}
+
+#aiFields label:first-child{grid-column:1/-1}
+
+.setting-note{display:block;margin-top:8px;font-size:11px;line-height:1.5;color:#acb5c5}button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid #ff8a76;outline-offset:3px}
+
+#raceControlHud.action-required{position:fixed;left:50%;right:auto;top:24%;transform:translateX(-50%);width:min(460px,86vw);max-width:none;text-align:center;padding:16px 22px;border:1px solid #ff705b;border-top:3px solid #ff705b;border-radius:10px;background:#181b24f5;font-size:15px;font-weight:650;line-height:1.6;box-shadow:0 8px 30px #0006}
+.boundary-choice{display:block;max-width:440px;margin:22px 0 8px;font-size:12px}.boundary-choice select{display:block;width:100%;margin-top:8px;padding:12px;background:#24262c;color:#fff;border:1px solid #40424a;border-radius:4px}
+@media(max-height:560px){#raceControlHud.action-required{top:22%;padding:10px 16px;font-size:12px}}
+/* Directional proximity chevrons, clear of the mirror and instruments. */
+#proximityHud{pointer-events:none;position:fixed;inset:0;z-index:8}.proximity-chevron{position:absolute;left:50%;top:52%;width:27px;height:27px;color:#fff;filter:drop-shadow(0 2px 3px #000c);transition:transform 80ms linear,opacity 120ms linear}.proximity-chevron svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:3;stroke-linejoin:round;stroke-linecap:round}.proximity-chevron[data-urgent=true]{color:#ff493e}body[data-camera=chase] .proximity-chevron{top:59%}@media(max-width:720px){.proximity-chevron{width:22px;height:22px}}@media(prefers-reduced-motion:reduce){.proximity-chevron{transition:none}}
+
+
+/* Race setup: carry the same selection stripe through all three steps. */
+#tracks .track, .session-choice, .team-cards button {
+ border-radius:10px; border:1px solid #434650; background:linear-gradient(145deg,#252832,#171920);
+ transition:border-color .14s, background-color .14s;
+}
+#tracks .track.selected, .session-choice[aria-pressed=true], .team-cards button[aria-pressed=true] {
+ border-color:#ff6658; background:linear-gradient(115deg,#462828,#202029 72%);
+ box-shadow:inset 3px 0 #ff6658;
+}
+.session-choice[aria-pressed=true] small:after {content:'  /  SELECTED';color:#ffac99}
+#aiFields label {padding:12px 14px;background:#1a1d24;border:1px solid #353944;border-radius:9px}
+#aiFields output {float:right;font-variant-numeric:tabular-nums;color:#ffab94}
+.menu-top nav button[aria-current=step] {box-shadow:inset 0 -3px #ff6658;color:white}
+.flow-actions {border-top:1px solid #41434c;padding-top:16px}
+#hud .telemetry[data-drs=open] {border-color:#ff8a61;outline:2px solid #ff855d;outline-offset:2px;
+ box-shadow:0 0 18px 4px #ff582a88,inset 0 0 16px #ff693936}
+#drsState:not([hidden]) {display:table;padding:4px 7px;border-radius:4px;background:#292e36;color:#e4e7ef;font-weight:700}
+#hud [data-drs=open] #drsState {color:#24150e;background:#ff9d70}
+#pauseLayer{width:min(360px,90vw);color:#f5f5f6;background:#17191feF;border:1px solid #454851;border-top:3px solid #ff483e;border-radius:10px;padding:26px;box-shadow:0 18px 65px #0008}#pauseLayer::backdrop{background:#080a10aa}#pauseLayer small,#racePositions>small{font-size:9px;letter-spacing:1.3px;color:#c3c5cf}#pauseLayer h2{margin:15px 0 4px;font-size:30px}#pauseLayer p{margin:0 0 24px;color:#ccc}#pauseLayer button{display:block;width:100%;border-radius:5px;border:1px solid #555;background:#272930;color:white;padding:12px;margin-top:8px;font-weight:700}#pauseLayer #pauseResume{background:#c82c24;border-color:#c82c24}#racePositions:has(.towerRow){min-width:182px;font-variant-numeric:tabular-nums;white-space:normal}#racePositions>small{display:block;margin-bottom:6px}.towerRow{display:grid;grid-template-columns:15px minmax(0,1fr) auto;gap:6px;align-items:center;padding:4px 0;border-top:1px solid #ffffff18}.towerRow span:nth-child(2){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.towerRow.mine{font-weight:bold;color:white}.towerRow.mine span:first-child{color:#ff7973}
+
+.performance-choice{display:flex;align-items:center;gap:10px;margin:14px 0;cursor:pointer;font-size:14px}
+.performance-choice input{width:16px;height:16px;accent-color:#e44438}
+.performance-choice small{display:block;margin-top:3px;color:#b8bbc4;font-size:11px;letter-spacing:normal}
+body.low-performance #rearMirror{display:none}
+
+#aiFields label.enhanced-skill{border-radius:6px;outline:1px solid #ff5847;background:#37191b;animation:enhanced-pulse 2s ease-in-out infinite alternate}
+#aiFields .enhanced-skill .setting-note{color:#ffab98}
+@keyframes enhanced-pulse{from{box-shadow:0 0 4px #fa302933}to{box-shadow:0 0 14px #ff452966}}
+@media(prefers-reduced-motion:reduce){#aiFields label.enhanced-skill{animation:none}}

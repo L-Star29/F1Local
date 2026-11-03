@@ -8,10 +8,10 @@ import {teams} from './model-assets.js';
 const root=path.dirname(fileURLToPath(import.meta.url));
 const output=path.join(root,'dist-pages');
 const aiHash=createHash('sha256');
-for(const file of ['ai-line.js','physics.js','race-world.mjs','surface.js','data/gb-1948-model-track.json'])aiHash.update(await fs.readFile(path.join(root,file)));
+for(const file of ['ai-line.js','physics.js','tracks.js','race-world.mjs','surface.js','track-limits.js','data/gb-1948-model-track.json'])aiHash.update(await fs.readFile(path.join(root,file)));
 const aiPlan=JSON.parse(await fs.readFile(path.join(root,'data/gb-1948-ai-plan.json'),'utf8'));
 if(aiPlan.fingerprint!==aiHash.digest('hex'))throw Error('AI plan is stale. Run node build-ai-plan.mjs before deploying.');
-const files=['data/gb-1948-ai-plan.json','ai-line.js','ai-race.js','time-trial.js','network-motion.js','setup-flow.js','garage-preview.js','race-start.js','car-contact.js','car-footprints.js','practice-starts.js','solo-session.js','multiplayer-config.json','index.html','credits.html','style.css','game.js','world.js','physics.js','tracks.js','surface.js','model-assets.js','track-catalog.js','controls.js','camera-rig.js','driving-feedback.js','track-limits.js','multiplayer.js','data/LICENSE.md'];
+const files=['timing-tower.js','data/render-driver/ai-race.js','data/render-driver/physics.js','data/render-driver/ai-line.js','data/gb-1948-render-ai-plan.json','proximity.js','data/gb-1948-ai-plan.json','race-steward.js','race-aero.js','ai-racecraft.js','ai-driver.js','ai-line.js','ai-race.js','time-trial.js','network-motion.js','setup-flow.js','garage-preview.js','race-start.js','car-contact.js','car-footprints.js','practice-starts.js','solo-session.js','multiplayer-config.json','index.html','credits.html','style.css','game.js','world.js','physics.js','tracks.js','surface.js','model-assets.js','track-catalog.js','controls.js','camera-rig.js','driving-feedback.js','track-limits.js','multiplayer.js','data/LICENSE.md'];
 async function collect(folder){for(const entry of await fs.readdir(path.join(root,folder),{withFileTypes:true})){const relative=folder+'/'+entry.name;if(entry.isDirectory())await collect(relative);else files.push(relative);}}
 await collect('vendor');
 for(const team of teams)files.push('Car Models/'+team.file);
@@ -28,3 +28,4 @@ await fs.rm(output,{recursive:true,force:true});await fs.mkdir(output,{recursive
 for(const relative of files){const destination=path.join(output,relative);await fs.mkdir(path.dirname(destination),{recursive:true});await fs.copyFile(path.join(root,relative),destination);}
 await fs.writeFile(path.join(output,'.nojekyll'),'');
 console.log(`Built dist-pages: ${files.length} files, ${(bytes/1e6).toFixed(1)} MB. All GLBs contain real model data.`);
+

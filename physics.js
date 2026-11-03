@@ -3,7 +3,7 @@ import {clamp} from './tracks.js';
 // Original tunable 2025-style model; these are not EA/Pirelli coefficients.
 export const vehicles={
  formula:{mass:800,inertia:1320,a:1.94,b:1.66,track:1.62,cg:.30,mu:1.72,loadSensitivity:.10,
-  aero:2.6,aeroFront:.45,drag:.91,power:735000,drive:26000,brakes:32000,bias:.57,
+  aero:2.8,aeroFront:.45,drag:.91,power:735000,drive:26000,brakes:32000,bias:.57,
   peak:.075,slide:.73,rollFront:.55,frontDrive:0,steerLock:.57,
   gears:[0,14.7,11.6,9.5,8.0,6.95,6.15,5.55,5.0],redline:13000,idle:3800},
  rally:{mass:1250,inertia:1850,a:1.20,b:1.40,track:1.55,cg:.52,mu:1.10,loadSensitivity:.08,
@@ -49,7 +49,7 @@ export function step(c,input,road,mode,dt,settings={}){
  // Give a held key time to build steering load. A fast yaw impulse followed
  // by saturated front tyres feels sharp initially but then runs wide.
  const demand=clamp(input.steer,-1,1);c.steerInput=input.analog?approach(c.steerInput,demand,30,dt):ramp(c.steerInput,demand,demand===0?(roadFormula?10:5.5):demand*c.steerInput<0?(roadFormula?8:7):(roadFormula?3.6:3.8),dt);
- c.steer=approach(c.steer,-c.steerInput*keyboardSteeringRange(speed,p),30,dt);
+ c.steer=approach(c.steer,-c.steerInput*(Number.isFinite(settings.steeringRange)?clamp(settings.steeringRange,0,p.steerLock):keyboardSteeringRange(speed,p)*(1+.28*clamp(settings.aiPerformance||0,0,1))),30,dt);
  }else{
  c.throttle=approach(c.throttle,clamp(input.throttle,0,1),input.analog?30:11,dt);
  c.brake=approach(c.brake,clamp(input.brake,0,1),input.brake>c.brake?20:32,dt);
@@ -72,7 +72,7 @@ export function step(c,input,road,mode,dt,settings={}){
  const grip=(direct?1:off?(mode==='formula'?.42:.70):1)*thermal*(1-c.wear*.2);
  c.wheelGrips??=[1,1,1,1];for(let i=0;i<4;i++)c.wheelGrips[i]=approach(c.wheelGrips[i],direct?(road.wheelGrip?.[i]??(off?.88:1)):1,8,dt);
  const beta=Math.atan2(c.v,Math.max(speed,2));
- const aero=p.aero*speed*speed*clamp(1-Math.abs(beta)*1.2,.60,1);
+ const aero=p.aero*(1+.7*clamp(settings.aiPerformance||0,0,1))*clamp(settings.aeroFlow?.load??1,.7,1)*speed*speed*clamp(1-Math.abs(beta)*1.2,.60,1);
  c.loadAx=approach(c.loadAx,c.ax,18,dt);c.loadAy=approach(c.loadAy,c.ay,16,dt);
  const transfer=clamp(c.loadAx*p.mass*p.cg/wb,-p.mass*9.81*.3,p.mass*9.81*.3);
  const frontLoad=p.mass*9.81*p.b/wb+aero*p.aeroFront-transfer;
@@ -96,6 +96,8 @@ export function step(c,input,road,mode,dt,settings={}){
   // Continuous audio pitch only; this value does not affect propulsion.
   c.rpm=p.idle+(p.redline-p.idle)*(1-Math.exp(-speed/48));
  }
+ engine*=1+.05*clamp(settings.aiPerformance||0,0,1);
+ c.contactAge=(c.contactAge??999)+dt;
  let fx=0,fy=0,moment=0,frontSlip=0,rearSlip=0;
  c.locked=false;c.wheelspin=false;c.tc=false;c.abs=false;c.tyres=[];
  // TC reduces engine torque equally at driven wheels. Independently clipping
@@ -160,7 +162,7 @@ export function step(c,input,road,mode,dt,settings={}){
   if(front)frontSlip=Math.max(frontSlip,Math.abs(alpha));else rearSlip=Math.max(rearSlip,Math.abs(alpha));
   c.tyres.push({load,capacity:cap,fx:longitudinal,fy:lateral,slip:alpha});
  }
- const resistance=p.drag*speed*speed+(direct?105+c.wheelGrips.reduce((a,g)=>a+(1-g)*150,0):off?650:105)*Math.tanh(speed/2);
+ const resistance=p.drag*clamp(settings.aeroFlow?.drag??1,.65,1)*speed*speed+(direct?105+c.wheelGrips.reduce((a,g)=>a+(1-g)*150,0):off?650:105)*Math.tanh(speed/2);
  fx-=resistance+p.mass*9.81*(road.slope||0);
  c.ax=fx/p.mass;c.ay=fy/p.mass;
  const dynamic=smooth(2,7,speed);
@@ -179,4 +181,3 @@ export function step(c,input,road,mode,dt,settings={}){
  c.wear=clamp(c.wear+(speed*.00000012+excessSlip*speed*.0000015)*dt,0,1);
  c.distance+=speed*dt;c.off=off;
 }
-

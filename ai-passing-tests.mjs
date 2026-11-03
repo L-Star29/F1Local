@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {chooseRaceLane} from './ai-racecraft.js';
+const choosePass=(race,bot,road,opponent,traffic)=>{const list=traffic.map(p=>({p,road:p.car.road,ds:p.car.road.s-road.s}));return chooseRaceLane(race,bot,road,list.find(p=>p.p===opponent),list,.02);};
+const track={n:100,ds:3,length:300,pts:Array.from({length:100},()=>({x:0,z:0,y:0,nx:1,nz:0,tx:0,tz:1,curve:.02}))};
+const race={track,aggression:1,line:{bounds:Array.from({length:100},()=>[5,5])},surface:c=>c.road};
+const bot={car:{u:25}},road={s:60},ahead={car:{u:12,road:{s:80,offset:0}}};
+assert.ok(choosePass(race,bot,road,ahead,[ahead],30)>0,'take available inside lane in a bend');
+const blocker={car:{u:25,road:{s:75,offset:3.3}}};
+assert.ok(choosePass(race,bot,road,ahead,[ahead,blocker],30)<0,'use outside when inside is occupied');
+const second={car:{u:25,road:{s:75,offset:-3.3}}};
+assert.equal(choosePass(race,bot,road,ahead,[ahead,blocker,second],30),null,'do not drive into occupied lanes');
+race.line.bounds[30]=[2,2];
+assert.equal(choosePass(race,bot,road,ahead,[ahead],30),null,'reject a lane that narrows ahead');
+console.log('PASS: inside bend pass, alternate side, occupied lanes and narrowing road.');

@@ -1,0 +1,47 @@
+import assert from 'node:assert/strict';
+import {racecraft,racingSeparation} from './ai-racecraft.js';
+const pts=Array.from({length:500},(_,i)=>({x:0,z:i*3,y:0,tx:0,tz:1,nx:-1,nz:0,curve:0,offset:0,width:16}));
+const track={pts,n:500,ds:3,length:1500};
+const race={track,line:{...track,bounds:pts.map(()=>[7,7])},aggression:1,surface:c=>({s:c.z,offset:-c.x})};
+const car=(x,z,u,ax=0)=>({x,z,y:0,yaw:0,u,v:0,r:0,brake:0,ax});
+const make=()=>({id:'ai',car:car(0,300,50),offset:0});
+const rival={id:'you',car:car(0,335,49)};
+const high=make(),low=make();
+racecraft(race,high,{s:300,offset:0},[rival],60,.05);
+racecraft({...race,aggression:0},low,{s:300,offset:0},[rival],60,.05);
+assert.equal(high.tactics.passId,'you','maximum aggression sets up a pass before following brakes intervene');
+assert.ok(!low.tactics.passId,'low aggression waits for a clearer closing-speed advantage');
+assert.ok(racingSeparation(high.car,rival.car,pts[0],1)>=3);
+// Leader brakes early: brake immediately while taking an unoccupied escape lane.
+const follower=make();follower.car.u=35;follower.car.brake=.4;follower.car.ax=-5;
+const early={id:'you',car:car(0,310,35,-15)};
+const escape=racecraft(race,follower,{s:300,offset:0},[early],40,.05);
+assert.ok(escape.avoiding&&Math.abs(escape.lane)>2.5,'early braking permits a clear escape instead of locking the follower behind');
+assert.equal(escape.speed,40,'maximum aggression retains the corner target while taking a passing lane');
+const left={id:'left',car:car(-3,310,35)},right={id:'right',car:car(3,310,35)};
+const trapped=racecraft(race,make(),{s:300,offset:0},[early,left,right],60,.05);
+assert.equal(trapped.lane,0,'do not invent an unoccupied lane');assert.equal(trapped.speed,60,'maximum aggression accepts blocked-road contact instead of traffic braking');
+console.log('PASS: proactive maximum-aggression attack, physical clearance, early-braking escape and occupied-lane rejection.');
+const interrupted=make();interrupted.car.u=25;interrupted.car.brake=1;interrupted.car.ax=-5;
+interrupted.tactics={lane:3.4,passId:'you',hold:1,braking:true,brakeLane:0};
+const slower={id:'you',car:car(0,315,20)};
+assert.ok(racecraft(race,interrupted,{s:300,offset:0},[slower],40,.05).lane>3,'braking cannot pin an interrupted pass behind a slower car');
+slower.car.x=-3.4;
+assert.ok(Math.abs(racecraft(race,interrupted,{s:300,offset:0},[slower],40,.05).lane-3.4)>2.6,'replan when the rival moves into the old passing corridor');
+const squeezed=make();squeezed.car.x=-8;squeezed.car.contactAge=.1;
+const neighbour={id:'you',car:car(-5,302,25)};
+const recovery=racecraft(race,squeezed,{s:300,offset:8,wheelsOff:4},[neighbour],40,.05);
+assert.ok(recovery.speed>0,'recent contact must not force a stop with a physically clear recovery');
+console.log('PASS: interrupted pass resumes, occupied route replans, contact recovery keeps moving.');
+// Full aggression preserves the run while moving into an open lane. Lower
+// aggression still uses the stopping-distance/following policy.
+const runLeader={id:'you',car:car(0,335,30)};
+const attackRun=racecraft(race,make(),{s:300,offset:0},[runLeader],60,.05);
+const cautiousRun=racecraft({...race,aggression:.5},make(),{s:300,offset:0},[runLeader],60,.05);
+assert.ok(attackRun.speed>50,'available straight pass must not brake a 50m/s AI to leader speed');
+assert.ok(attackRun.speed>cautiousRun.speed+10,'full aggression must materially preserve more passing speed');
+assert.ok(attackRun.attack,'controller must move promptly into the selected lane');
+console.log('PASS: full-aggression passing preserves the run instead of using cautious following speed.');
+const parked={id:'you',car:car(0,320,0)},queue=make();queue.car.u=0;
+const pullOut=racecraft(race,queue,{s:300,offset:0},[parked],40,.05);
+assert.ok(pullOut.attack&&pullOut.speed>4&&Math.abs(pullOut.lane)>3,'stopped rival gets an immediate passing target, not the old 4m/s crawl cap');

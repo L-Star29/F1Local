@@ -1,3 +1,6 @@
 .tools/
 *.blend1
 dist-pages/
+
+.video-tools/
+.video-tools/
